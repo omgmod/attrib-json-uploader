@@ -19,7 +19,7 @@ Value between 0 and 1, 1 being 100% accurate, 0 being 0%.
  Minimum range to short band
 
 #### `ai_info`
-Seems to be some sort of ai prioritization against targets, unsure how this interacts with target table priorities.
+Seems to be some sort of ai prioritization against targets, *unsure how this interacts with target table priorities.*
 * `anti`
     * `aiclass_infantry`
     * `aiclass_light_vehicle`
@@ -142,7 +142,7 @@ Can the weapon fire at range 0?
 Does the weapon prevent the wielding model from going prone? Used by infantry AT and support weapons.
 
 * `support_weapon`\
-Is the weapon one that can be picked up? (Not sure on this)
+Is the weapon one that can be picked up? *(Not sure on this)*
 
 `aa_weapon_shoot_through`\
 `can_be_offhanded`\
@@ -317,7 +317,7 @@ TODO LINK the reference to corresponding `dot_type`
 Reference to the `dot_type` object which describes the actual damge over time effects.
 
 * `duration_min`\
-Not sure, sounds like a duration minimum override on the `dot_type` object's `duration_min`.
+*Not sure, sounds like a duration minimum override on the `dot_type` object's `duration_min`.*
 
 #### `deflection`
 Used when the weapon can still do damage without penetrating, usually for tank or vehicle damage.
@@ -477,7 +477,7 @@ Multiplier on scatter distance when firing into the fog of war. Is this on every
 
 * `distance_scatter_obj_hit_min`
 * `tilt_max_distance`\
-Unknown
+*Unknown*
 
 #### `setup`
 Denotes when units need to be stationary for a duration before the weapon is ready to aim.
@@ -666,8 +666,8 @@ Sources:\
 [relicnews](https://web.archive.org/web/20140916064941/http://forums.relicnews.com/showthread.php?232509-How-To-Edit-Weapon-Stats-*finished*)
 
 ---
-####DPS:
-damage is reload freq * burst duration * rof * acc * damage, basically total bullet*acc*damage
+#### Copy pasted notes on DPS:
+damage is reload freq * burst duration * rof * acc * damage, basically total bullet \* acc \* damage
 
 time is reload freq * burst duration + (reload freq - 1) * cooldown + reload
 
