@@ -10,6 +10,7 @@ pattern will involve almost entirely document retrievals by document key, and sh
 columns.
 
 ---
-####Note
+###Note
+
 Version 1.2.11 of the mongodb for PHP package should still support PHP 5.4:\
 https://pecl.php.net/package-info.php?package=mongodb&version=1.2.11
