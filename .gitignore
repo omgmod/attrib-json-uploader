@@ -143,5 +143,6 @@ pyvenv.cfg
 
 
 .idea
+*.ini
 *.ppk
 *.pem
