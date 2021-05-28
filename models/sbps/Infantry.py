@@ -1,0 +1,94 @@
+from typing import AnyStr, Union, List, Dict
+
+from ActionFactory import ActionFactory
+from DictUtils import DictUtils
+from models.SquadVeterancy import SquadVeterancy
+from models.action.AbilityAction import AbilityAction
+from models.action.Action import Action
+from models.action.NoopAction import NoopAction
+from models.action.UpgradeAction import UpgradeAction
+from models.sbps.Unit import Unit
+
+
+class Infantry(Unit):
+    def __init__(self, constname, faction, filename, sbps_json):
+        super().__init__(constname, faction, filename, sbps_json)
+
+    def clean(self):
+        """
+            Parse the raw sbps_json dict into a condensed dictionary with only the values we need.
+
+            Properties to look at:
+                squad_ability_ext.abilities.ability_0X references [abilities]
+                squad_action_apply_ext.actions
+                    ability_actions.action_0X references [action]
+                        - apply_modifiers_action
+                            modifiers.modifiers_0X references [modifiers]
+                                value
+                                application_type (optional)
+                                usage_type (optional)
+                        - requirement_action
+                            action_table
+                                ability_actions.action_01 references [action] most likely apply_modifiers_action
+                                    [modifiers block]
+                                upgrade_actions.action_01 references [action] most likely apply_modifiers_action
+                                    [modifiers block]
+                            requirement_table.required_X references [requirements]
+                                operation if requirement is logical operator like required_unary_expr this could be [[not]]
+                                requirement_table.required_X references [requirements]
+                                    min_owned
+                                    max_owned
+                                    slot_item references [slot_item]
+                    upgrade_actions
+                squad_combat_behaviour_ext
+                    suppression
+                        cover_info.tp_X.recover_multipler uses cover types
+                        noncombat_delay
+                        noncombat_recover_multiplier
+                        recover_rate
+                        suppressed_activate_threshold
+                        pin_down_activate_threshold
+                        suppressed_recover_threshold
+                squad_loadout_ext.unit_list.unit_0X
+                    type.type references [ebps]
+                    num
+                squad_veterancy_ext.veterancy_rank_info
+                    veterancy_rank_(01-05)
+                        experience_value
+                        squad_actions.actions_0X references [action] most likely apply_modifiers_action
+                            [modifiers_block]
+        """
+        abilities = self.get_abilities()
+        actions = self.get_actions()
+        combat_behavior_suppression = self.get_combat_behaviour_suppression()
+        loadout = self.get_loadout()
+        veterancy = self.get_veterancy()
+
+        return {
+            'reference': self.sbps_filename,
+            'constname': self.constname,
+            'faction': self.faction,
+            'abilities': abilities,
+            'actions': [action for action in actions] if actions else None,
+            'combat_behavior_suppression': combat_behavior_suppression,
+            'loadout': loadout,
+            'veterancy': veterancy
+        }
+
+    def get_combat_behaviour_suppression(self) -> Dict[AnyStr, Union[AnyStr, float, Dict[AnyStr, float]]]:
+        """
+            Get a dict of suppression combat behavior
+        """
+        suppression_dict = self.raw_json['squad_combat_behaviour_ext']['suppression']
+
+        result = {
+            'cover_info': {cover_type: value['recover_multiplier'] for cover_type, value in suppression_dict['cover_info'].items()},
+        }
+        DictUtils.add_to_dict_if_in_source('noncombat_delay', suppression_dict, result)
+        DictUtils.add_to_dict_if_in_source('noncombat_recover_multiplier', suppression_dict, result)
+        DictUtils.add_to_dict_if_in_source('recover_rate', suppression_dict, result)
+        DictUtils.add_to_dict_if_in_source('suppressed_activate_threshold', suppression_dict, result)
+        DictUtils.add_to_dict_if_in_source('pin_down_activate_threshold', suppression_dict, result)
+        DictUtils.add_to_dict_if_in_source('suppressed_recover_threshold', suppression_dict, result)
+
+        return result
