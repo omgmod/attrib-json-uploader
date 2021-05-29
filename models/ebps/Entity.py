@@ -54,13 +54,18 @@ class Entity(AbstractModel):
         try:
             hardpoints = self.raw_json['combat_ext']['hardpoints']
             for hardpoint_dict in hardpoints.values():
-                weapon = hardpoint_dict['weapon_table']['weapon_01']['weapon']
+                for weapon_dict in hardpoint_dict['weapon_table'].values():
+                    if 'type' in weapon_dict and weapon_dict['type'] == '[[accessory]]':
+                        continue
+                    weapon = weapon_dict['weapon']
+                    weapons.append(StringUtils.remove_bracket_wrapping(weapon))
                 if len(hardpoint_dict['weapon_table']) > 1 and hardpoint_dict['weapon_table']['weapon_02']['type'] != '[[accessory]]':
-                    if weapon == hardpoint_dict['weapon_table']['weapon_02']['weapon']:
-                        print(f"WARNING - {self.ebps_filename} Duplicate weapons for hardpoint {pprint(hardpoint_dict['weapon_table'])}")
+                    if hardpoint_dict['weapon_table']['weapon_01']['weapon'] == hardpoint_dict['weapon_table']['weapon_02']['weapon']:
+                        print(
+                            f"WARNING - {self.ebps_filename} Duplicate weapons for hardpoint {pprint(hardpoint_dict['weapon_table'])}")
                     else:
-                        print(f"WARNING - {self.ebps_filename} More than one weapon found for a hardpoint weapon table {pprint(hardpoint_dict['weapon_table'])}")
-                weapons.append(StringUtils.remove_bracket_wrapping(weapon))
+                        print(
+                            f"WARNING - {self.ebps_filename} More than one weapon found for a hardpoint weapon table {pprint(hardpoint_dict['weapon_table'])}")
         except KeyError:
             pass
         return weapons

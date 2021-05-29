@@ -399,7 +399,9 @@ class Weapon(AbstractModel):
             for critical_table_num, critical_table_value in value.items():
                 # Looking for hit_0X with critical_type and weight
                 critical_table_result = {}  # weight to critical/critical_combo ref
+                DictUtils.add_to_dict_if_in_source(critical_table_value, critical_table_result, 'damage_bound')
                 for hit_num, hit_value in critical_table_value.items():
+                    weight = hit_value.get('weight')
                     if 'critical_type' not in hit_value or 'weight' not in hit_value:
                         continue
                     hit_critical_type_dict = hit_value['critical_type']
@@ -413,9 +415,10 @@ class Weapon(AbstractModel):
                         reference = StringUtils.remove_bracket_wrapping(hit_critical_type_dict['critical_combo']['reference'])
                         critical_table_result[reference] = weight
                     elif 'critical_combo' in hit_critical_type_dict['reference']:
-                        # Weird case where the critical combo hit critical type is malformed, skip it
-                        print(f"WARNING Malformed critical combo hit {hit_critical_type_dict}")
-                        continue
+                        # If this is a critical combo reference but no 'critical_combo' is provided, the default critical_combo
+                        # is critical_combo\_no_critical_combo.lua. Treat as no critical
+                        reference = 'critical\\_no_critical.lua'
+                        critical_table_result[reference] = weight
                     else:
                         raise Exception(f"Malformed hit critical type dict, could not find critical or critical_combo {hit_critical_type_dict}")
                 critical_type_result[critical_table_num] = critical_table_result
