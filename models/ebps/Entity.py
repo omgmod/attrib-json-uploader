@@ -23,7 +23,7 @@ class Entity(AbstractModel):
         """
         try:
             abilities_dict = self.raw_json['ability_ext']['abilities']
-            abilities = [StringUtils.remove_bracket_wrapping(a) for a in abilities_dict.values()]
+            abilities = [StringUtils.remove_bracket_file_endings(a) for a in abilities_dict.values()]
         except KeyError:
             abilities = None
         return abilities
@@ -58,7 +58,7 @@ class Entity(AbstractModel):
                     if 'type' in weapon_dict and weapon_dict['type'] == '[[accessory]]':
                         continue
                     weapon = weapon_dict['weapon']
-                    weapons.append(StringUtils.remove_bracket_wrapping(weapon))
+                    weapons.append(StringUtils.remove_bracket_file_endings(weapon))
                 if len(hardpoint_dict['weapon_table']) > 1 and hardpoint_dict['weapon_table']['weapon_02']['type'] != '[[accessory]]':
                     if hardpoint_dict['weapon_table']['weapon_01']['weapon'] == hardpoint_dict['weapon_table']['weapon_02']['weapon']:
                         print(
@@ -134,11 +134,11 @@ class Entity(AbstractModel):
             print(f"WARNING - {self.ebps_filename} missing type_target_critical")
         target_type_weapon = type_ext_dict.get('type_target_weapon', None)  # axis_howitzer_gun_nest
         if target_type_weapon is not None:
-            target_type_weapon = StringUtils.remove_bracket_wrapping(target_type_weapon['reference'])
+            target_type_weapon = StringUtils.remove_bracket_file_endings(target_type_weapon['reference'])
 
         type_target_critical = type_ext_dict.get('type_target_critical', None)  # Some hq wrecks don't have this
         if type_target_critical is not None:
-            type_target_critical = StringUtils.remove_bracket_wrapping(type_target_critical['reference'])
+            type_target_critical = StringUtils.remove_bracket_file_endings(type_target_critical['reference'])
 
         return {
             'type_target_weapon': target_type_weapon,

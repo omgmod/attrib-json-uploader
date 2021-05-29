@@ -1,4 +1,9 @@
+from collections import defaultdict
+
 from models.Faction import Faction
+from models.sbps.EmplacementBuilder import EmplacementBuilder as SquadEmplacementBuilder
+from models.ebps.EmplacementBuilder import EmplacementBuilder
+from models.ebps.EmplacementGun import EmplacementGun
 from services.AttribParserService import AttribParserService
 from services.WarcpDataService import WarcpDataService
 from utils.FileUtils import FileUtils
@@ -52,6 +57,42 @@ weapons = attrib_parser_service.get_weapons('./json/weapon_stats.json')
 
 # Get all slot item records
 slot_items = attrib_parser_service.get_slot_items('./json/slot_item_stats.json')
+
+
+# Emplacement builder sbps has a emplacement builder ebps vehicle in its loadout, which has a link via
+# engineer_ext.construction_menus.construction_menu_01.construction_type to the corresponding emplacement gun ebps, which
+# has a link via construction_ext.construction_menus.construction_menu_entry_01.construction_type back to the emplacement builder ebps
+
+# For all emplacement gun ebps, get a map of construction_type to emplacement gun ebps filename
+construction_type_to_gun_ebps = defaultdict(list)
+construction_type_to_builder_ebps = defaultdict(list)
+builder_ebps_filename_to_construction_type = {}
+for faction in factions.values():
+    for ebps in faction.entities.values():
+        if type(ebps) == EmplacementGun:
+            construction_type = ebps.get_construction_type()['construction_type']
+            construction_type_to_gun_ebps[construction_type].append(ebps)
+            if len(construction_type_to_gun_ebps[construction_type]) > 1:
+                print(f"WARNING - Construction_type {construction_type} has ambiguous mapping to emplacement gun ebps "
+                      f"{construction_type_to_gun_ebps[construction_type]}")
+
+        if type(ebps) == EmplacementBuilder:
+            construction_type = ebps.get_construction_type()['construction_type']
+            construction_type_to_builder_ebps[construction_type].append(ebps)
+            builder_ebps_filename_to_construction_type[ebps.ebps_filename] = construction_type
+
+# Add a link in the emplacement builder sbps to the construction type and emplacement gun ebps filename
+for faction in factions.values():
+    for sbps in faction.units.values():
+        if type(sbps) == SquadEmplacementBuilder:
+            loadout = sbps.get_loadout()
+            assert len(loadout) == 1
+            ebps_name = list(loadout.keys())[0]
+            construction_type = builder_ebps_filename_to_construction_type[ebps_name]
+            gun_ebps = construction_type_to_gun_ebps[construction_type]
+            sbps.construction_type = construction_type
+            assert len(gun_ebps) == 1
+            sbps.emplacement_gun_ebps_name = gun_ebps[0].ebps_filename
 
 units_clean = []
 entities_clean = []

@@ -3,6 +3,7 @@ from pprint import pprint
 from models.action.Action import Action
 from models.action.ability.ApplyModifiersAction import ApplyModifiersAction
 from models.action.ability.DelayAction import DelayAction
+from utils.StringUtils import StringUtils
 
 
 class UpgradeAction(Action):
@@ -11,6 +12,10 @@ class UpgradeAction(Action):
         super().__init__(raw_json)
 
     def clean(self):
+        if type(self.raw_json) == str:
+            self.raw_json = {
+                'reference': self.raw_json
+            }
         reference = UpgradeAction.get_reference_with_depth(self.raw_json['reference'], 2)
         if ']]' in reference:
             print(f"WARNING - found UpgradeAction reference with malformed path {self.raw_json['reference']}")
@@ -20,61 +25,72 @@ class UpgradeAction(Action):
             action = ApplyModifiersAction(self.raw_json)
             return action.clean()
         elif reference == 'add_weapon':
-            if 'hardpoint' in self.raw_json:
-                weapon = self.raw_json['hardpoint']['weapon']['weapon']
-            else:
+            if 'weapon' in self.raw_json:
                 weapon = self.raw_json['weapon']['weapon']
+            else:
+                weapon = self.raw_json['hardpoint']['weapon']['weapon']
             return {
                 'reference': reference,
                 'weapon': weapon
             }
         elif reference == 'change_weapon':
-            if 'hardpoint' in self.raw_json:
-                weapon = self.raw_json['hardpoint']['weapon']
-            else:
+            if 'weapon' in self.raw_json:
                 weapon = self.raw_json['weapon']
+            else:
+                weapon = self.raw_json['hardpoint']['weapon']
+            if type(weapon) == dict:
+                weapon = weapon['weapon']
             return {
-                'reference': reference,
-                'weapon': weapon
+                'reference': StringUtils.remove_bracket_file_endings(reference),
+                'weapon': StringUtils.remove_bracket_file_endings(weapon),
             }
         elif reference == 'upgrade_add':
             return {
-                'reference': reference,
-                'upgrade': self.raw_json['upgrade']
+                'reference': StringUtils.remove_bracket_file_endings(reference),
+                'upgrade': StringUtils.remove_bracket_file_endings(self.raw_json['upgrade'])
             }
         elif reference == 'slot_item_add':
             return {
-                'reference': reference,
-                'slot_item': self.raw_json['slot_item']
+                'reference': StringUtils.remove_bracket_file_endings(reference),
+                'slot_item': StringUtils.remove_bracket_file_endings(self.raw_json['slot_item'])
             }
         elif reference == 'slot_item_replace':
             return {
-                'reference': reference,
-                'old_slot_item': self.raw_json['old_slot_item'],
-                'new_slot_item': self.raw_json['new_slot_item']
+                'reference': StringUtils.remove_bracket_file_endings(reference),
+                'old_slot_item': StringUtils.remove_bracket_file_endings(self.raw_json['old_slot_item']),
+                'new_slot_item': StringUtils.remove_bracket_file_endings(self.raw_json['new_slot_item']),
             }
         elif reference == 'change_move_data_action':
             return {
-                'reference': reference,
+                'reference': StringUtils.remove_bracket_file_endings(reference),
                 'acceleration_multiplier': self.raw_json['acceleration_multiplier']
             }
         elif reference == 'change_weapon_target_type':
             return {
-                'reference': reference,
-                'new_type': self.raw_json['new_type'],
-                'original_type': self.raw_json['original_type'],
+                'reference': StringUtils.remove_bracket_file_endings(reference),
+                'new_type': StringUtils.remove_bracket_file_endings(self.raw_json['new_type']),
+                'original_type': StringUtils.remove_bracket_file_endings(self.raw_json['original_type']),
             }
         elif reference == 'change_critical_target_type':
             return {
-                'reference': reference,
-                'new_type': self.raw_json['new_type'],
-                'original_type': self.raw_json['original_type'],
+                'reference': StringUtils.remove_bracket_file_endings(reference),
+                'new_type': StringUtils.remove_bracket_file_endings(self.raw_json['new_type']),
+                'original_type': StringUtils.remove_bracket_file_endings(self.raw_json['original_type']),
             }
         elif reference == 'replace_ability_action':
             return {
-                'reference': reference,
-                'ability_to_add': self.raw_json['ability_to_add'],
-                'ability_to_remove': self.raw_json['ability_to_remove'],
+                'reference': StringUtils.remove_bracket_file_endings(reference),
+                'ability_to_add': StringUtils.remove_bracket_file_endings(self.raw_json['ability_to_add']),
+                'ability_to_remove': StringUtils.remove_bracket_file_endings(self.raw_json['ability_to_remove']),
+            }
+        elif reference == 'remove_weapon':
+            return {
+                'reference': StringUtils.remove_bracket_file_endings(reference)
+            }
+        elif reference == 'add_crew_action':
+            return {
+                'reference': StringUtils.remove_bracket_file_endings(reference),
+                'crew_name': StringUtils.remove_bracket_file_endings(self.raw_json['crew_name'])
             }
         elif reference == 'delay_action':
             delay_action = DelayAction(self.raw_json).clean()
@@ -87,7 +103,7 @@ class UpgradeAction(Action):
             raise Exception(f"Unexpected upgrade action {pprint(self.raw_json)}")
 
     REFERENCES_TO_IGNORE = ('retreat_status_action', 'alter_squad_ui_info_action', 'ui_decorator_action',
-                            'ui_unit_modifier_action',
+                            'ui_unit_modifier_action', 'animator_set_state', 'no_action', 'set_crush_obb'
                             )
 
 

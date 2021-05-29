@@ -5,6 +5,8 @@ class EmplacementBuilder(Unit):
 
     def __init__(self, constname, faction, filename, sbps_json):
         super().__init__(constname, faction, filename, sbps_json)
+        self.construction_type = None
+        self.emplacement_gun_ebps_name = None
 
     def clean(self):
         """
@@ -27,6 +29,9 @@ class EmplacementBuilder(Unit):
             'reference': self.sbps_filename,
             'constname': self.constname,
             'faction': self.faction,
+            'type': 'emplacement_builder',
+            'construction_type': self.construction_type,
+            'emplacement_gun_ebps_name': self.emplacement_gun_ebps_name,
             'loadout': loadout,
             'veterancy': veterancy
         }

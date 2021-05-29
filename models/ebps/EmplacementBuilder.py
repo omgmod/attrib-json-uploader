@@ -1,4 +1,5 @@
 from models.ebps.Vehicle import Vehicle
+from utils.StringUtils import StringUtils
 
 
 class EmplacementBuilder(Vehicle):
@@ -33,6 +34,7 @@ class EmplacementBuilder(Vehicle):
         result = {
             'reference': self.ebps_filename,
             'faction': self.faction,
+            'type': 'emplacement_builder',
             'construction_type': construction_type,
             'crush': crush,
             'moving': moving
@@ -45,5 +47,5 @@ class EmplacementBuilder(Vehicle):
 
     def get_construction_type(self):
         return {
-            'construction_type': self.raw_json['engineer_ext']['construction_menus']['construction_menu_01']['construction_type']
+            'construction_type': StringUtils.remove_bracket_wrapping(self.raw_json['engineer_ext']['construction_menus']['construction_menu_01']['construction_type'])
         }

@@ -43,6 +43,7 @@ class Infantry(Entity):
         result = {
             'reference': self.ebps_filename,
             'faction': self.faction,
+            'type': 'infantry',
             'cover': cover,
             'moving': moving
         }

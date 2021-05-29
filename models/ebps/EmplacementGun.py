@@ -1,4 +1,5 @@
 from models.ebps.Entity import Entity
+from utils.StringUtils import StringUtils
 
 
 class EmplacementGun(Entity):
@@ -37,6 +38,7 @@ class EmplacementGun(Entity):
         result = {
             'reference': self.ebps_filename,
             'faction': self.faction,
+            'type': 'emplacement_gun',
             'construction_type': construction_type,
         }
         if abilities:
@@ -54,5 +56,5 @@ class EmplacementGun(Entity):
 
     def get_construction_type(self):
         return {
-            'construction_type': self.raw_json['construction_ext']['construction_menus']['construction_menu_entry_01']['construction_type']
+            'construction_type': StringUtils.remove_bracket_wrapping(self.raw_json['construction_ext']['construction_menus']['construction_menu_entry_01']['construction_type'])
         }

@@ -53,6 +53,7 @@ class Building(Entity):
         result = {
             'reference': self.ebps_filename,
             'faction': self.faction,
+            'type': 'building',
             'construction': construction,
         }
         if abilities:

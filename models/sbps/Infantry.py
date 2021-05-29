@@ -63,6 +63,7 @@ class Infantry(Unit):
             'reference': self.sbps_filename,
             'constname': self.constname,
             'faction': self.faction,
+            'type': 'infantry',
             'abilities': abilities,
             'actions': [action for action in actions] if actions else None,
             'combat_behavior_suppression': combat_behavior_suppression,

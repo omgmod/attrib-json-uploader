@@ -18,7 +18,7 @@ class Unit(AbstractModel):
         super().__init__(sbps_json)  # self.raw_json
         self.constname = constname
         self.faction = faction
-        self.sbps_filename = filename
+        self.sbps_filename = StringUtils.remove_bracket_file_endings(filename)
 
     def clean(self):
         """
@@ -32,7 +32,7 @@ class Unit(AbstractModel):
         """
         try:
             abilities_dict = self.raw_json['squad_ability_ext']['abilities']
-            abilities = [StringUtils.remove_bracket_wrapping(a) for a in abilities_dict.values()]
+            abilities = [StringUtils.remove_bracket_file_endings(a) for a in abilities_dict.values()]
         except KeyError:
             abilities = None
         return abilities
@@ -70,7 +70,7 @@ class Unit(AbstractModel):
         for unit_dict in unit_list_dict.values():
             # Somehow some sbps have unused units in the loadout without type, skip them
             if 'type' in unit_dict:
-                ebps = unit_dict['type']['type']
+                ebps = StringUtils.remove_bracket_file_endings(unit_dict['type']['type'])
                 number = unit_dict.get('num', 1)  # default to 1 if no number given
                 loadout[ebps] = number
 

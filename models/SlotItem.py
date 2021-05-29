@@ -35,7 +35,7 @@ class SlotItem(AbstractModel):
             weapon_dict = self.raw_json['weapon']
             result = {
                 'type': StringUtils.remove_bracket_wrapping(weapon_dict['type']),
-                'weapon': StringUtils.remove_bracket_wrapping(weapon_dict['weapon'].replace('.lua', '')),
+                'weapon': StringUtils.remove_bracket_file_endings(weapon_dict['weapon']),
             }
             return result
         except KeyError:

@@ -34,6 +34,7 @@ class Ability(AbstractModel):
         requirements = self.get_requirements()
 
         result = {
+            'reference': self.filename,
             'actions': actions
         }
         DictUtils.add_to_dict_if_in_source(self.raw_json, result, 'activation')

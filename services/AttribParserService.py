@@ -14,6 +14,7 @@ from models.sbps.EmplacementBuilder import EmplacementBuilder as EmplacementBuil
 from models.sbps.Infantry import Infantry as InfantrySquad
 from models.sbps.Vehicle import Vehicle as VehicleSquad
 from utils.FileUtils import FileUtils
+from utils.StringUtils import StringUtils
 
 
 class AttribParserService:
@@ -223,7 +224,7 @@ class AttribParserService:
             raise Exception(f"Invalid lua file {path}, expected '.lua' or '.rgd' file extension.")
 
         del file_path_elements[0]
-        file_path_elements[-1] = file_path_elements[-1].replace('.lua', '').replace('.rgd', '')
+        file_path_elements[-1] = StringUtils.remove_file_endings(file_path_elements[-1])
 
         return file_path_elements
 

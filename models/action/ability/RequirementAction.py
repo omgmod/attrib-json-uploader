@@ -44,9 +44,9 @@ class RequirementAction(AbilityAction):
         reference = RequirementAction._get_ability_upgrade_reference(action_json['reference'])
         if reference == 'apply_modifiers_action':
             return ApplyModifiersAction(action_json).clean()
-        elif reference == 'replace_ability_action':
+        elif 'upgrade_action' in action_json['reference']:
             # Bizarrely this is actually an upgrade action
-            print(f"WARNING Unexpected UpgradeAction {reference} for action {action_json}")
+            print(f"WARNING Unexpected UpgradeAction {action_json['reference']} for action {action_json}")
             return UpgradeAction(action_json).clean()
 
         elif reference == 'delay' or reference == 'delay]]':  #TODO FIX THIS SPECIAL CASE
@@ -54,7 +54,10 @@ class RequirementAction(AbilityAction):
                 print(f"WARNING Malformed delay action reference {reference} for action {action_json}")
             return DelayAction(action_json).clean()
 
-        elif reference in ('no_action', 'ui_unit_modifier_action'):
+        elif reference == 'requirement_action':
+            return RequirementAction(action_json).clean()
+
+        elif reference in ('no_action', 'ui_unit_modifier_action', 'ui_decorator_action'):
             return None
 
         else:

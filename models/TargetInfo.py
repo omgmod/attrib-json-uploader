@@ -39,7 +39,7 @@ class TargetInfo(AbstractModel):
             if not set(self.raw_json.keys()).issubset(TargetInfo.EXPECTED_LEAF_TARGET_INFO_KEYS):
                 raise Exception(f"Unexpected TargetInfo keys {set(self.raw_json.keys()).difference(TargetInfo.EXPECTED_LEAF_TARGET_INFO_KEYS)}")
 
-            return result
+        return result
 
     BINARY_EXPRESSION = 'binary_expr'
     UNARY_EXPRESSION = 'unary_expr'

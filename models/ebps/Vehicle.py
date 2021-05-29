@@ -59,6 +59,7 @@ class Vehicle(Entity):
         result = {
             'reference': self.ebps_filename,
             'faction': self.faction,
+            'type': 'vehicle',
             'cover': cover,
         }
         if abilities:

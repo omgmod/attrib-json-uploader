@@ -9,6 +9,9 @@ class Requirement(AbstractModel):
     def __init__(self, raw_json):
         super().__init__(raw_json)
 
+    def is_usable(self):
+        return 'reference' in self.raw_json
+
     def clean(self):
         """
 
@@ -27,6 +30,9 @@ class Requirement(AbstractModel):
         add_to_dict_partial('not_moving')
         add_to_dict_partial('garrisoned')
         add_to_dict_partial('max_cap')
+        add_to_dict_partial('in_supply')
+        add_to_dict_partial('comparison')
+        add_to_dict_partial('number_of_members')
         if not set(self.raw_json.keys()).issubset(Requirement.EXPECTED_NESTED_REQUIREMENT_KEYS):
             if 'reason' in self.raw_json and self.raw_json['reason'] == '[[usage_and_display]]':
                 pass
@@ -41,4 +47,5 @@ class Requirement(AbstractModel):
         return path.split('\\')[1].replace('.lua]]', '')
 
     EXPECTED_NESTED_REQUIREMENT_KEYS = {'reference', 'not_moving', 'slot_item', 'min_owned', 'max_owned',
-                                        'ui_name', 'garrisoned', 'is_present', 'upgrade_name', 'max_cap', 'reason',}
+                                        'ui_name', 'garrisoned', 'is_present', 'upgrade_name', 'max_cap', 'reason',
+                                        'in_supply', 'comparison', 'number_of_members', 'display_requirement'}

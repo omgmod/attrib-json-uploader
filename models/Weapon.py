@@ -194,7 +194,7 @@ class Weapon(AbstractModel):
         tracking = self.get_tracking()
 
         result = {
-            'filename': self.filename,
+            'reference': self.filename,
             'accuracy': accuracy,
             'cover_table': cover_table,
             'critical_table': critical_table,
@@ -401,23 +401,22 @@ class Weapon(AbstractModel):
                 critical_table_result = {}  # weight to critical/critical_combo ref
                 DictUtils.add_to_dict_if_in_source(critical_table_value, critical_table_result, 'damage_bound')
                 for hit_num, hit_value in critical_table_value.items():
-                    weight = hit_value.get('weight')
                     if 'critical_type' not in hit_value or 'weight' not in hit_value:
                         continue
                     hit_critical_type_dict = hit_value['critical_type']
                     weight = hit_value['weight']
                     if 'critical' in hit_critical_type_dict:
                         # simple critical
-                        reference = StringUtils.remove_bracket_wrapping(hit_critical_type_dict['critical'])
+                        reference = StringUtils.remove_bracket_file_endings(hit_critical_type_dict['critical'])
                         critical_table_result[reference] = weight
                     elif 'critical_combo' in hit_critical_type_dict:
                         # critical_combo
-                        reference = StringUtils.remove_bracket_wrapping(hit_critical_type_dict['critical_combo']['reference'])
+                        reference = StringUtils.remove_bracket_file_endings(hit_critical_type_dict['critical_combo']['reference'])
                         critical_table_result[reference] = weight
                     elif 'critical_combo' in hit_critical_type_dict['reference']:
                         # If this is a critical combo reference but no 'critical_combo' is provided, the default critical_combo
                         # is critical_combo\_no_critical_combo.lua. Treat as no critical
-                        reference = 'critical\\_no_critical.lua'
+                        reference = 'critical\\_no_critical'
                         critical_table_result[reference] = weight
                     else:
                         raise Exception(f"Malformed hit critical type dict, could not find critical or critical_combo {hit_critical_type_dict}")
@@ -491,7 +490,7 @@ class Weapon(AbstractModel):
         try:
             projectile_dict = self.raw_json['projectile']
             return {
-                'projectile': StringUtils.remove_bracket_wrapping(projectile_dict['projectile'])
+                'projectile': StringUtils.remove_bracket_file_endings(projectile_dict['projectile'])
             }
         except KeyError:
             return {}

@@ -48,6 +48,7 @@ class Vehicle(Unit):
             'reference': self.sbps_filename,
             'constname': self.constname,
             'faction': self.faction,
+            'type': 'vehicle',
             'abilities': abilities,
             'actions': [action for action in actions] if actions else None,
             'loadout': loadout,
