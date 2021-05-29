@@ -9,3 +9,7 @@ class AbstractModel:
             Returns the clean representation of the model.
         """
         pass
+
+    @staticmethod
+    def get_reference_with_depth(path, depth):
+        return path.split('\\')[depth].replace('.lua]]', '')

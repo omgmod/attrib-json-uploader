@@ -1,12 +1,7 @@
-from typing import AnyStr, Union, List, Dict
+from functools import partial
+from typing import AnyStr, Union, Dict
 
-from ActionFactory import ActionFactory
-from DictUtils import DictUtils
-from models.SquadVeterancy import SquadVeterancy
-from models.action.AbilityAction import AbilityAction
-from models.action.Action import Action
-from models.action.NoopAction import NoopAction
-from models.action.UpgradeAction import UpgradeAction
+from utils.DictUtils import DictUtils
 from models.sbps.Unit import Unit
 
 
@@ -84,11 +79,12 @@ class Infantry(Unit):
         result = {
             'cover_info': {cover_type: value['recover_multiplier'] for cover_type, value in suppression_dict['cover_info'].items()},
         }
-        DictUtils.add_to_dict_if_in_source('noncombat_delay', suppression_dict, result)
-        DictUtils.add_to_dict_if_in_source('noncombat_recover_multiplier', suppression_dict, result)
-        DictUtils.add_to_dict_if_in_source('recover_rate', suppression_dict, result)
-        DictUtils.add_to_dict_if_in_source('suppressed_activate_threshold', suppression_dict, result)
-        DictUtils.add_to_dict_if_in_source('pin_down_activate_threshold', suppression_dict, result)
-        DictUtils.add_to_dict_if_in_source('suppressed_recover_threshold', suppression_dict, result)
+        add_to_dict_partial = partial(DictUtils.add_to_dict_if_in_source, suppression_dict, result)
+        add_to_dict_partial('noncombat_delay')
+        add_to_dict_partial('noncombat_recover_multiplier')
+        add_to_dict_partial('recover_rate')
+        add_to_dict_partial('suppressed_activate_threshold')
+        add_to_dict_partial('pin_down_activate_threshold')
+        add_to_dict_partial('suppressed_recover_threshold')
 
         return result

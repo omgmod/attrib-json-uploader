@@ -1,6 +1,5 @@
-from ActionFactory import ActionFactory
+from factories.ActionFactory import ActionFactory
 from models.AbstractModel import AbstractModel
-from models.action.Action import Action
 from models.modifiers.Modifier import Modifier
 
 

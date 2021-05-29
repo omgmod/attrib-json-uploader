@@ -52,7 +52,8 @@ class DelayAction(AbilityAction):
                 'modifiers': modifiers
             }
 
-        elif reference == 'ui_decorator_action':
+        # If we have recursive delay actions, skip them
+        elif reference in ('delay', 'ui_decorator_action'):
             return None
         else:
             raise Exception(f"Unexpected DelayAction subaction {action_json}")

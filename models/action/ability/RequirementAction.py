@@ -1,7 +1,7 @@
-from pprint import pprint
 from typing import AnyStr, Dict, Union, List, Any
 
-from DictUtils import DictUtils
+from models.Requirement import Requirement
+from utils.DictUtils import DictUtils
 from models.action.AbilityAction import AbilityAction
 from models.action.Action import Action
 from models.action.UpgradeAction import UpgradeAction
@@ -34,7 +34,7 @@ class RequirementAction(AbilityAction):
 
         return {
             'reference': Action.get_reference_with_depth(self.raw_json['reference'], 2),
-            'requirements': clean_requirements,
+            'requirements': [x for x in clean_requirements if x is not None],
             'ability_actions': [x for x in clean_ability_actions if x is not None] if clean_ability_actions else None,
             'upgrade_actions': [x for x in clean_upgrade_actions if x is not None] if clean_upgrade_actions else None,
         }
@@ -50,6 +50,8 @@ class RequirementAction(AbilityAction):
             return UpgradeAction(action_json).clean()
 
         elif reference == 'delay' or reference == 'delay]]':  #TODO FIX THIS SPECIAL CASE
+            if reference == 'delay]]':
+                print(f"WARNING Malformed delay action reference {reference} for action {action_json}")
             return DelayAction(action_json).clean()
 
         elif reference in ('no_action', 'ui_unit_modifier_action'):
@@ -64,31 +66,24 @@ class RequirementAction(AbilityAction):
 
     @staticmethod
     def _build_requirement(requirement_json: Dict) -> Dict[AnyStr, Union[AnyStr, Dict[AnyStr, AnyStr]]]:
+        if 'reference' not in requirement_json:
+            return None
         reference = RequirementAction._get_requirement_reference(requirement_json['reference'])
 
         nested_requirements = []
         if 'requirement_table' in requirement_json:
             # have nested requirements
             for nested_requirement in requirement_json['requirement_table'].values():
-                nested_result = {
-                    'reference': RequirementAction._get_requirement_reference(nested_requirement['reference']),
-                }
-                DictUtils.add_to_dict_if_in_source('slot_item', nested_requirement, nested_result)
-                DictUtils.add_to_dict_if_in_source('min_owned', nested_requirement, nested_result)
-                DictUtils.add_to_dict_if_in_source('max_owned', nested_requirement, nested_result)
-                DictUtils.add_to_dict_if_in_source('not_moving', nested_requirement, nested_result)
-                DictUtils.add_to_dict_if_in_source('garrisoned', nested_requirement, nested_result)
-                nested_requirements.append(nested_result)
-                if not set(nested_requirement.keys()).issubset(RequirementAction.EXPECTED_NESTED_REQUIREMENT_KEYS):
-                    raise Exception()
+                requirement = Requirement(nested_requirement)
+                nested_requirements.append(requirement.clean())
 
         result = {
             'reference': reference,
             'nested_requirements': nested_requirements
         }
-        DictUtils.add_to_dict_if_in_source('operation', requirement_json, result)
-        DictUtils.add_to_dict_if_in_source('garrisoned', requirement_json, result)
-        DictUtils.add_to_dict_if_in_source('upgrade_name', requirement_json, result)
+        DictUtils.add_to_dict_if_in_source(requirement_json, result, 'operation')
+        DictUtils.add_to_dict_if_in_source(requirement_json, result, 'garrisoned')
+        DictUtils.add_to_dict_if_in_source(requirement_json, result, 'upgrade_name')
 
         return result
 
@@ -99,5 +94,3 @@ class RequirementAction(AbilityAction):
     @staticmethod
     def _get_requirement_reference(path):
         return path.split('\\')[1].replace('.lua]]', '')
-
-    EXPECTED_NESTED_REQUIREMENT_KEYS = {'reference', 'not_moving', 'slot_item', 'min_owned', 'max_owned', 'ui_name', 'garrisoned'}

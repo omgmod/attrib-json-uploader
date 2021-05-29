@@ -1,10 +1,9 @@
-import json
 from typing import AnyStr, Dict, List, Union
 
-from ActionFactory import ActionFactory
-from FileUtils import FileUtils
+from factories.ActionFactory import ActionFactory
 from models.AbstractModel import AbstractModel
 from models.SquadVeterancy import SquadVeterancy
+from utils.StringUtils import StringUtils
 
 
 class Unit(AbstractModel):
@@ -29,11 +28,11 @@ class Unit(AbstractModel):
 
     def get_abilities(self) -> Union[None, List[AnyStr]]:
         """
-            If the sbps has squad abilities, returns them as a list in format [[abilities\\X_ability.lua]]
+            If the sbps has squad abilities, returns them as a list in format abilities\\X_ability.lua
         """
         try:
             abilities_dict = self.raw_json['squad_ability_ext']['abilities']
-            abilities = list(abilities_dict.values())
+            abilities = [StringUtils.remove_bracket_wrapping(a) for a in abilities_dict.values()]
         except KeyError:
             abilities = None
         return abilities
