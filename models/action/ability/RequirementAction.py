@@ -1,6 +1,7 @@
 from typing import AnyStr, Dict, Union, List, Any
 
 from models.Requirement import Requirement
+from models.action.ability.TargetAction import TargetAction
 from utils.DictUtils import DictUtils
 from models.action.AbilityAction import AbilityAction
 from models.action.Action import Action
@@ -56,6 +57,9 @@ class RequirementAction(AbilityAction):
 
         elif reference == 'requirement_action':
             return RequirementAction(action_json).clean()
+
+        elif reference == 'target':
+            return TargetAction(action_json).clean()
 
         elif reference in ('no_action', 'ui_unit_modifier_action', 'ui_decorator_action'):
             return None

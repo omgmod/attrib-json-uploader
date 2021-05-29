@@ -93,10 +93,10 @@ class Building(Entity):
             clean_ability_actions = None
             clean_upgrade_actions = None
             if 'ability_actions' in construction_action_table_json:
-                clean_ability_actions = [ActionFactory.create_action_from_json(a) for a in
+                clean_ability_actions = [ActionFactory.create_action_from_json(a).clean() for a in
                                          construction_action_table_json['ability_actions'].values()]
             if 'upgrade_actions' in construction_action_table_json:
-                clean_upgrade_actions = [ActionFactory.create_action_from_json(a) for a in
+                clean_upgrade_actions = [ActionFactory.create_action_from_json(a).clean() for a in
                                          construction_action_table_json['upgrade_actions'].values()]
             clean_actions = []
             if clean_ability_actions:

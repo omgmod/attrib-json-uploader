@@ -1,7 +1,8 @@
 import json
 import os
 import shutil
-from typing import AnyStr, Dict, Any
+from collections import defaultdict
+from typing import AnyStr, Dict, Any, DefaultDict, List, Union
 
 
 class FileUtils:
@@ -31,3 +32,8 @@ class FileUtils:
         print(f"Copying contents of {source_directory_path} to {destination_directory_path}")
         for filename in os.listdir(source_directory_path):
             shutil.copy2(os.path.join(source_directory_path, filename), os.path.join(destination_directory_path, filename))
+
+    @staticmethod
+    def save_to_json(filename: AnyStr, data: Union[Dict, List]) -> None:
+        with open(filename, mode='w') as json_file:
+            json.dump(data, json_file)

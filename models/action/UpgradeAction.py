@@ -92,6 +92,21 @@ class UpgradeAction(Action):
                 'reference': StringUtils.remove_bracket_file_endings(reference),
                 'crew_name': StringUtils.remove_bracket_file_endings(self.raw_json['crew_name'])
             }
+        elif reference == 'upgrade_remove':
+            return {
+                'reference': StringUtils.remove_bracket_file_endings(reference),
+                'upgrade': StringUtils.remove_bracket_file_endings(self.raw_json['upgrade'])
+            }
+        elif reference == 'activate_extension_action':
+            return {
+                'reference': StringUtils.remove_bracket_file_endings(reference),
+                'repair_station_ext': StringUtils.remove_bracket_file_endings(self.raw_json['repair_station_ext'])
+            }
+        elif reference == 'garrison_squad_action':
+            return {
+                'reference': StringUtils.remove_bracket_file_endings(reference),
+                'squad_blueprint': StringUtils.remove_bracket_file_endings(self.raw_json['squad_blueprint'])
+            }
         elif reference == 'delay_action':
             delay_action = DelayAction(self.raw_json).clean()
             return delay_action
@@ -103,7 +118,8 @@ class UpgradeAction(Action):
             raise Exception(f"Unexpected upgrade action {pprint(self.raw_json)}")
 
     REFERENCES_TO_IGNORE = ('retreat_status_action', 'alter_squad_ui_info_action', 'ui_decorator_action',
-                            'ui_unit_modifier_action', 'animator_set_state', 'no_action', 'set_crush_obb'
+                            'ui_unit_modifier_action', 'animator_set_state', 'no_action', 'set_crush_obb',
+                            'animator_set_event',
                             )
 
 
