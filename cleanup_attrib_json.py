@@ -11,11 +11,14 @@ from utils.FileUtils import FileUtils
 RAW_JSON_RELATIVE_PATH = './json/raw'
 CLEAN_JSON_RELATIVE_PATH = './json/clean'
 
-# Cleanup json
-FileUtils.clear_directory_of_filetype(RAW_JSON_RELATIVE_PATH, ".json")
+PULL_FROM_ATTRIB_PARSER = False
 
-# Copy over attrib jsons from ../attrib-parser/json
-FileUtils.copy_directory("../attrib-parser/json", RAW_JSON_RELATIVE_PATH)
+if PULL_FROM_ATTRIB_PARSER:
+    # Cleanup json
+    FileUtils.clear_directory_of_filetype(RAW_JSON_RELATIVE_PATH, ".json")
+
+    # Copy over attrib jsons from ../attrib-parser/json
+    FileUtils.copy_directory("../attrib-parser/json", RAW_JSON_RELATIVE_PATH)
 
 # Tables with CONSTNAME:
 

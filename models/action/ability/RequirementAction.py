@@ -33,12 +33,17 @@ class RequirementAction(AbilityAction):
         if 'upgrade_actions' in action_table_json:
             clean_upgrade_actions = [RequirementAction._build_upgrade_action(a) for a in action_table_json['upgrade_actions'].values()]
 
-        return {
+        result = {
             'reference': Action.get_reference_with_depth(self.raw_json['reference'], 2),
             'requirements': [x for x in clean_requirements if x is not None],
-            'ability_actions': [x for x in clean_ability_actions if x is not None] if clean_ability_actions else None,
-            'upgrade_actions': [x for x in clean_upgrade_actions if x is not None] if clean_upgrade_actions else None,
         }
+
+        if clean_ability_actions:
+            result['ability_actions'] = [x for x in clean_ability_actions if x is not None]
+        if clean_upgrade_actions:
+            result['upgrade_actions'] = [x for x in clean_upgrade_actions if x is not None]
+
+        return result
 
     @staticmethod
     def _build_ability_action(action_json: Dict) -> Union[Dict, None]:

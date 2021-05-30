@@ -44,13 +44,18 @@ class Vehicle(Unit):
         loadout = self.get_loadout()
         veterancy = self.get_veterancy()
 
-        return {
+        result = {
             'reference': self.sbps_filename,
             'constname': self.constname,
             'faction': self.faction,
             'type': 'vehicle',
-            'abilities': abilities,
-            'actions': [action for action in actions] if actions else None,
             'loadout': loadout,
             'veterancy': veterancy
         }
+        if actions:
+            result['actions'] = [action for action in actions]
+
+        if abilities:
+            result['abilities'] = abilities
+        return result
+

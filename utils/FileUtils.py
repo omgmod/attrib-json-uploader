@@ -36,4 +36,4 @@ class FileUtils:
     @staticmethod
     def save_to_json(filename: AnyStr, data: Union[Dict, List]) -> None:
         with open(filename, mode='w') as json_file:
-            json.dump(data, json_file)
+            json.dump(data, json_file, indent=4)

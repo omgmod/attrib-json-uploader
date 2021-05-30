@@ -1,12 +1,37 @@
-from typing import Set, Tuple, Dict, AnyStr
+from typing import Set, Tuple, Dict, AnyStr, List
 
 import paramiko
 import sshtunnel
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine, text, insert, Table, MetaData, Column, Integer, String
 from sqlalchemy.engine import Connection
 
 from Config import Config
 
+metadata = MetaData()
+
+units_table = Table(
+    "stats_units",
+    metadata,
+    Column('id', Integer, primary_key=True),
+    Column('reference', String(100)),
+    Column('CONSTNAME', String(100)),
+    Column('short_constname', String(100)),
+    Column('faction', String(10)),
+    Column('type', String(20)),
+    Column('version_id', Integer),
+    Column('json', String),
+)
+
+entities_table = Table(
+    "stats_entities",
+    metadata,
+    Column('id', Integer, primary_key=True),
+    Column('reference', String(100)),
+    Column('faction', String(10)),
+    Column('type', String(20)),
+    Column('version_id', Integer),
+    Column('json', String),
+)
 
 def rds_connection_wrapper(function):
     def wrap_function(*args, **kwargs):
@@ -39,6 +64,49 @@ def rds_connection_wrapper(function):
 
 
 class WarcpDataService:
+
+    @rds_connection_wrapper
+    def get_version(self, connection: Connection = None,) -> AnyStr:
+        result = connection.execute(text("SELECT id, version FROM versions order by id desc limit 1")).fetchone()
+        if result is None:
+            raise Exception("No version found")
+        version_id, version = result
+        print(f"Using version id {version_id} of {version}")
+        return version_id
+
+    @rds_connection_wrapper
+    def insert_units(self, data: List[Dict], version_id: int, connection: Connection = None) -> None:
+        """"""
+        stmt_input = []
+        for unit in data:
+            stmt_input.append({
+                'reference': unit['reference'],
+                'CONSTNAME': f"{unit['faction']}.{unit['constname']}",
+                'short_constname': unit['constname'],
+                'faction': unit['faction'],
+                'type': unit['type'],
+                'version_id': version_id,
+                'json': unit,
+            })
+        
+        connection.execute(units_table.insert(), stmt_input)
+        connection.commit()
+
+    @rds_connection_wrapper
+    def insert_entities(self, data: List[Dict], version_id: int, connection: Connection = None) -> None:
+        """"""
+        stmt_input = []
+        for entity in data:
+            stmt_input.append({
+                'reference': entity['reference'],
+                'faction': entity['faction'],
+                'type': entity['type'],
+                'version_id': version_id,
+                'json': entity,
+            })
+
+        connection.execute(entities_table.insert(), stmt_input)
+        connection.commit()
 
     @rds_connection_wrapper
     def get_base_constnames(self,

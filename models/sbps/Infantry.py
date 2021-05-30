@@ -59,17 +59,21 @@ class Infantry(Unit):
         loadout = self.get_loadout()
         veterancy = self.get_veterancy()
 
-        return {
+        result = {
             'reference': self.sbps_filename,
             'constname': self.constname,
             'faction': self.faction,
             'type': 'infantry',
-            'abilities': abilities,
-            'actions': [action for action in actions] if actions else None,
             'combat_behavior_suppression': combat_behavior_suppression,
             'loadout': loadout,
             'veterancy': veterancy
         }
+        if actions:
+            result['actions'] = [action for action in actions]
+        if abilities:
+            result['abilities'] = abilities
+
+        return result
 
     def get_combat_behaviour_suppression(self) -> Dict[AnyStr, Union[AnyStr, float, Dict[AnyStr, float]]]:
         """
