@@ -54,7 +54,6 @@ class Building(Entity):
             'reference': self.ebps_filename,
             'faction': self.faction,
             'type': 'building',
-            'construction': construction,
         }
         if abilities:
             result['abilities'] = abilities
@@ -62,6 +61,8 @@ class Building(Entity):
             result['actions'] = actions
         if aide_station:
             result['aide_station'] = aide_station
+        if construction:
+            result['construction'] = construction
         if garrison:
             result['garrison'] = garrison
         if requirement:

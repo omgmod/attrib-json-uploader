@@ -99,7 +99,7 @@ class WarcpDataService:
         for entity in data:
             stmt_input.append({
                 'reference': entity['reference'],
-                'faction': entity['faction'],
+                'faction': entity.get('faction'),
                 'type': entity['type'],
                 'version_id': version_id,
                 'json': entity,

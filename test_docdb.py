@@ -21,19 +21,17 @@ with sshtunnel.SSHTunnelForwarder(
         ssh_pkey=private_key,
         remote_bind_address=(db_host, int(db_port))
 ) as tunnel:
-    port = tunnel.local_bind_port
-
     # Create a MongoDB client, open a connection to Amazon DocumentDB as a replica set and specify the read preference as secondary preferred
 
-    connection_string = f'mongodb://{db_user}:{db_pass}@127.0.0.1:{port}/?replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false'
+    connection_string = f'mongodb://omgdocdb:KvNDsZCF73@127.0.0.1:{tunnel.local_bind_port}/?ssl=true&ssl_cert_reqs=CERT_NONE&sslInvalidHostNameAllowed=true&readPreference=primary&serverSelectionTimeoutMS=5000&connectTimeoutMS=10000&authSource=admin&authMechanism=SCRAM-SHA-1'
     print(f"Connecting to {connection_string}")
     client = pymongo.MongoClient(connection_string)
 
     # Specify the database to be used
-    db = client.sample_database
+    db = client.omgstats
 
     # Specify the collection to be used
-    col = db.sample_collection
+    col = db.entities
 
     # Insert a single document
     col.insert_one({'hello': 'Amazon DocumentDB'})

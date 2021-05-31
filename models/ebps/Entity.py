@@ -81,13 +81,16 @@ class Entity(AbstractModel):
         return cover_results
 
     def get_health(self):
-        health_ext_dict = self.raw_json['health_ext']
-        health = {
-            'hitpoints': health_ext_dict['hitpoints'],
-        }
-        DictUtils.add_to_dict_if_in_source(health_ext_dict, health, 'rear_damage_critical_type')
-        DictUtils.add_to_dict_if_in_source(health_ext_dict, health, 'rear_damage_enabled')
-        return health
+        try:
+            health_ext_dict = self.raw_json['health_ext']
+            health = {
+                'hitpoints': health_ext_dict['hitpoints'],
+            }
+            DictUtils.add_to_dict_if_in_source(health_ext_dict, health, 'rear_damage_critical_type')
+            DictUtils.add_to_dict_if_in_source(health_ext_dict, health, 'rear_damage_enabled')
+            return health
+        except KeyError:
+            return {}
 
     def get_moving(self):
         try:
@@ -127,23 +130,28 @@ class Entity(AbstractModel):
             return {}
 
     def get_types(self):
-        type_ext_dict = self.raw_json['type_ext']
-        if 'type_target_weapon' not in type_ext_dict:
-            print(f"WARNING - {self.ebps_filename} missing type_target_weapon")
-        if 'type_target_critical' not in type_ext_dict:
-            print(f"WARNING - {self.ebps_filename} missing type_target_critical")
-        target_type_weapon = type_ext_dict.get('type_target_weapon', None)  # axis_howitzer_gun_nest
-        if target_type_weapon is not None:
-            target_type_weapon = StringUtils.remove_bracket_file_endings(target_type_weapon['reference'])
+        try:
+            type_ext_dict = self.raw_json['type_ext']
+            if 'type_target_weapon' not in type_ext_dict:
+                print(f"WARNING - {self.ebps_filename} missing type_target_weapon")
+            if 'type_target_critical' not in type_ext_dict:
+                print(f"WARNING - {self.ebps_filename} missing type_target_critical")
+            target_type_weapon = type_ext_dict.get('type_target_weapon', None)  # axis_howitzer_gun_nest
+            if target_type_weapon is not None:
+                target_type_weapon = StringUtils.remove_bracket_file_endings(target_type_weapon['reference'])
 
-        type_target_critical = type_ext_dict.get('type_target_critical', None)  # Some hq wrecks don't have this
-        if type_target_critical is not None:
-            type_target_critical = StringUtils.remove_bracket_file_endings(type_target_critical['reference'])
+            type_target_critical = type_ext_dict.get('type_target_critical', None)  # Some hq wrecks don't have this
+            if type_target_critical is not None:
+                type_target_critical = StringUtils.remove_bracket_file_endings(type_target_critical['reference'])
 
-        return {
-            'type_target_weapon': target_type_weapon,
-            'type_target_critical': type_target_critical,
-        }
+            result = {}
+            if target_type_weapon:
+                result['type_target_weapon'] = target_type_weapon
+            if type_target_critical:
+                result['type_target_critical'] = type_target_critical
+            return result
+        except KeyError:
+            return {}
 
     def get_veterancy_value(self):
         try:

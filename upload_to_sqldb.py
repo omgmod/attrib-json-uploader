@@ -1,3 +1,4 @@
+import json
 
 from services.WarcpDataService import WarcpDataService
 from utils.FileUtils import FileUtils
@@ -11,6 +12,9 @@ entities_json = FileUtils.read_json_file(f"{CLEAN_JSON_RELATIVE_PATH}/entities.j
 # Get latest version from db
 warcp_data_service = WarcpDataService()
 version_id = warcp_data_service.get_version()
+
+units_json = json.loads(json.dumps(units_json).replace('\\', '/'))
+entities_json = json.loads(json.dumps(entities_json).replace('\\', '/'))
 
 # pass to data service to insert
 # for idx, unit in enumerate(units_json):

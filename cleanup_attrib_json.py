@@ -49,7 +49,7 @@ factions = {faction_constname: Faction(faction_constname) for faction_constname 
 attrib_parser_service.get_raw_sbps_by_faction(f"{RAW_JSON_RELATIVE_PATH}/sbps_stats.json", factions, filtered_units_to_path_by_faction)
 
 # Get all ebps records corresponding to entities in the unit
-attrib_parser_service.get_raw_ebps_by_faction(f"{RAW_JSON_RELATIVE_PATH}/ebps_stats.json", factions)
+props = attrib_parser_service.get_raw_ebps_by_faction(f"{RAW_JSON_RELATIVE_PATH}/ebps_stats.json", factions)
 
 # Get all upgrade records for the Faction
 attrib_parser_service.get_raw_upgrade_by_faction(f"{RAW_JSON_RELATIVE_PATH}/upgrade_stats.json", factions, filtered_upgrades_to_path_by_faction)
@@ -109,6 +109,7 @@ for faction in factions.values():
 
 weapons_clean = [x.clean() for x in weapons]
 slot_items_clean = [x.clean() for x in slot_items]
+entities_clean.extend([x.clean() for x in props])
 
 # Write to clean json folder
 FileUtils.save_to_json('./json/clean/units.json', units_clean)

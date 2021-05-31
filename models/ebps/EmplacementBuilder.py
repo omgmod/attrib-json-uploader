@@ -36,9 +36,10 @@ class EmplacementBuilder(Vehicle):
             'faction': self.faction,
             'type': 'emplacement_builder',
             'construction_type': construction_type,
-            'crush': crush,
             'moving': moving
         }
+        if crush:
+            result['crush'] = crush
         result.update(health)
         result.update(sight)
         result.update(types)

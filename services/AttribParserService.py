@@ -9,6 +9,7 @@ from models.ebps.Building import Building
 from models.ebps.EmplacementBuilder import EmplacementBuilder
 from models.ebps.EmplacementGun import EmplacementGun
 from models.ebps.Infantry import Infantry
+from models.ebps.Prop import Prop
 from models.ebps.Vehicle import Vehicle
 from models.sbps.EmplacementBuilder import EmplacementBuilder as EmplacementBuilderSquad
 from models.sbps.Infantry import Infantry as InfantrySquad
@@ -113,6 +114,17 @@ class AttribParserService:
             faction = factions[faction_constname]
             for entity in results:
                 faction.add_entity(entity)
+
+        # Get props
+        # ebps/props     ebps/gameplay/props
+        raw_props = ebps_json_file['props']
+        raw_gameplay_props = ebps_json_file['gameplay']['props']
+        props = []
+        for raw_prop_key, raw_prop_dict in raw_props.items():
+            props.append(Prop(raw_prop_dict, None, f'ebps\\props\\{raw_prop_key}'))
+        for raw_prop_key, raw_prop_dict in raw_gameplay_props.items():
+            props.append(Prop(raw_prop_dict, None, f'ebps\\gameplay\\props\\{raw_prop_key}'))
+        return props
 
     def get_raw_upgrade_by_faction(self,
                                    filepath,
