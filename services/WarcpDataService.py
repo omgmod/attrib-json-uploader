@@ -33,6 +33,36 @@ entities_table = Table(
     Column('json', String),
 )
 
+weapons_table = Table(
+    "stats_weapons",
+    metadata,
+    Column('id', Integer, primary_key=True),
+    Column('reference', String(200)),
+    Column('type', String(100)),
+    Column('version_id', Integer),
+    Column('json', String),
+)
+
+upgrades_table = Table(
+    "stats_upgrades",
+    metadata,
+    Column('id', Integer, primary_key=True),
+    Column('reference', String(200)),
+    Column('faction', String(50)),
+    Column('CONSTNAME', String(100)),
+    Column('version_id', Integer),
+    Column('json', String),
+)
+
+slot_items_table = Table(
+    "stats_slot_items",
+    metadata,
+    Column('id', Integer, primary_key=True),
+    Column('reference', String(200)),
+    Column('version_id', Integer),
+    Column('json', String),
+)
+
 def rds_connection_wrapper(function):
     def wrap_function(*args, **kwargs):
         aws_config = Config.get_instance()['AWS']
@@ -106,6 +136,48 @@ class WarcpDataService:
             })
 
         connection.execute(entities_table.insert(), stmt_input)
+        connection.commit()
+
+    @rds_connection_wrapper
+    def insert_weapons(self, data: List[Dict], version_id: int, connection: Connection = None) -> None:
+        stmt_input = []
+        for weapon in data:
+            stmt_input.append({
+                'reference': weapon['reference'],
+                'type': weapon['type'],
+                'version_id': version_id,
+                'json': weapon,
+            })
+
+        connection.execute(weapons_table.insert(), stmt_input)
+        connection.commit()
+
+    @rds_connection_wrapper
+    def insert_upgrades(self, data: List[Dict], version_id: int, connection: Connection = None) -> None:
+        stmt_input = []
+        for upgrade in data:
+            stmt_input.append({
+                'reference': upgrade['reference'],
+                'faction': upgrade.get('faction'),
+                'CONSTNAME': upgrade.get('constname'),
+                'version_id': version_id,
+                'json': upgrade,
+            })
+
+        connection.execute(upgrades_table.insert(), stmt_input)
+        connection.commit()
+
+    @rds_connection_wrapper
+    def insert_slot_items(self, data: List[Dict], version_id: int, connection: Connection = None) -> None:
+        stmt_input = []
+        for slot_item in data:
+            stmt_input.append({
+                'reference': slot_item['reference'],
+                'version_id': version_id,
+                'json': slot_item,
+            })
+
+        connection.execute(slot_items_table.insert(), stmt_input)
         connection.commit()
 
     @rds_connection_wrapper

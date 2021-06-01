@@ -2,6 +2,7 @@ from typing import AnyStr, Dict, Union, List, Any
 
 from models.action.AbilityAction import AbilityAction
 from models.modifiers.Modifier import Modifier
+from utils.StringUtils import StringUtils
 
 
 class DelayAction(AbilityAction):
@@ -52,8 +53,14 @@ class DelayAction(AbilityAction):
                 'modifiers': modifiers
             }
 
+        elif reference in ('upgrade_add', 'upgrade_remove'):
+            return {
+                'reference': 'reference',
+                'upgrade': StringUtils.remove_bracket_file_endings(action_json['upgrade'])
+            }
+
         # If we have recursive delay actions, skip them
-        elif reference in ('delay', 'ui_decorator_action'):
+        elif reference in ('delay', 'ui_decorator_action', 'change_move_data_action'):
             return None
         else:
             raise Exception(f"Unexpected DelayAction subaction {action_json}")

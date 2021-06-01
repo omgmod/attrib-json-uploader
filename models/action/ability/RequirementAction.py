@@ -2,6 +2,7 @@ from typing import AnyStr, Dict, Union, List, Any
 
 from models.Requirement import Requirement
 from models.action.ability.TargetAction import TargetAction
+from models.action.ability.UpgradeRemoveAction import UpgradeRemoveAction
 from utils.DictUtils import DictUtils
 from models.action.AbilityAction import AbilityAction
 from models.action.Action import Action
@@ -66,7 +67,11 @@ class RequirementAction(AbilityAction):
         elif reference == 'target':
             return TargetAction(action_json).clean()
 
-        elif reference in ('no_action', 'ui_unit_modifier_action', 'ui_decorator_action'):
+        elif reference == 'upgrade_remove':
+            return UpgradeRemoveAction(action_json).clean()
+
+        elif reference in ('no_action', 'ui_unit_modifier_action', 'ui_decorator_action', 'activate_extension_action',
+                           'animator_set_variable', 'ui_selection_type_change'):
             return None
 
         else:

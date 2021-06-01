@@ -3,6 +3,7 @@ from typing import AnyStr, Dict, List, Union
 from factories.ActionFactory import ActionFactory
 from models.AbstractModel import AbstractModel
 from models.SquadVeterancy import SquadVeterancy
+from models.Upgrade import Upgrade
 from utils.StringUtils import StringUtils
 
 
@@ -75,6 +76,46 @@ class Unit(AbstractModel):
                 loadout[ebps] = number
 
         return loadout
+
+    def get_squad_upgrade_apply(self):
+        try:
+            squad_upgrade_apply_dict = self.raw_json['squad_upgrade_apply_ext']
+            if len(squad_upgrade_apply_dict) == 1 and 'reference' in squad_upgrade_apply_dict:  # No upgrades
+                return
+
+            upgrades = []
+            for upgrade in squad_upgrade_apply_dict['upgrades'].values():
+                if upgrade in ('[[upgrade\\omg\\unit_despawn_on.rgd]]', '[[upgrade\\omg\\unit_despawn_off.rgd]]',
+                               '[[upgrade\\omg\\omg_para_landed.lua]]', '[[upgrade\\omg\\spawn_buff_exclude.rgd]]'):
+                    continue
+                upgrades.append(StringUtils.remove_bracket_file_endings(upgrade))
+
+            if len(upgrades) > 0:
+                return upgrades
+            else:
+                return None
+        except KeyError:
+            return None
+
+    def get_squad_upgrade(self):
+        try:
+            squad_upgrade_dict = self.raw_json['squad_upgrade_ext']
+            if len(squad_upgrade_dict) == 1 and 'reference' in squad_upgrade_dict:  # No upgrades
+                return
+
+            upgrades = []
+            for upgrade in squad_upgrade_dict['upgrades'].values():
+                if upgrade in ('[[upgrade\\omg\\unit_despawn_on.rgd]]', '[[upgrade\\omg\\unit_despawn_off.rgd]]',
+                               '[[upgrade\\omg\\omg_para_landed.lua]]', '[[upgrade\\omg\\spawn_buff_exclude.rgd]]'):
+                    continue
+                upgrades.append(StringUtils.remove_bracket_file_endings(upgrade))
+
+            if len(upgrades) > 0:
+                return upgrades
+            else:
+                return None
+        except KeyError:
+            return None
 
     def get_veterancy(self) -> Dict:
         """

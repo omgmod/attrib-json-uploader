@@ -31,25 +31,30 @@ class ActionFactory:
     @staticmethod
     def create_action_from_json(json_dict) -> Action:
         # Get the reference from the action dict, depending on action do something different
-        reference = json_dict['reference']
-        action_class_name, action_type = ActionFactory._get_action_class_and_type(reference)
+        try:
+            reference = json_dict['reference']
+            if reference == '[[]]':
+                return NoopAction(json_dict)
+            action_class_name, action_type = ActionFactory._get_action_class_and_type(reference)
 
-        if action_class_name not in ActionFactory.ACTION_CLASS_NAME_TO_CLASS:
-            raise Exception(f"Unexpected action class name {action_class_name}")
+            if action_class_name not in ActionFactory.ACTION_CLASS_NAME_TO_CLASS:
+                raise Exception(f"Unexpected action class name {action_class_name}")
 
-        action_class = ActionFactory.ACTION_CLASS_NAME_TO_CLASS[action_class_name]
+            action_class = ActionFactory.ACTION_CLASS_NAME_TO_CLASS[action_class_name]
 
-        if action_class == AbilityAction or action_type in ('requirement_action', 'apply_modifiers_action'):
-            # Multiple types of ability action, map to type
-            action_type_class = ActionFactory.ACTION_TYPE_NAME_TO_CLASS[action_type]
+            if action_class == AbilityAction or action_type in ('requirement_action', 'apply_modifiers_action'):
+                # Multiple types of ability action, map to type
+                action_type_class = ActionFactory.ACTION_TYPE_NAME_TO_CLASS[action_type]
 
-            action_instance = action_type_class(json_dict)
-        elif action_class == UpgradeAction:
-            action_instance = action_class(json_dict)
-        else:
-            action_instance = action_class(json_dict)
+                action_instance = action_type_class(json_dict)
+            elif action_class == UpgradeAction:
+                action_instance = action_class(json_dict)
+            else:
+                action_instance = action_class(json_dict)
 
-        return action_instance
+            return action_instance
+        except TypeError:
+            return NoopAction(json_dict)
 
     @staticmethod
     def _get_action_class_and_type(path) -> Tuple[AnyStr, AnyStr]:

@@ -29,8 +29,9 @@ class Upgrade(AbstractModel):
             'reference': self.upgrade_filename,
             'constname': self.constname,
             'faction': self.faction,
-            'actions': actions
         }
+        if actions:
+            result['actions'] = actions
         if requirements:
             result['requirements'] = requirements
         return result
@@ -43,10 +44,24 @@ class Upgrade(AbstractModel):
             actions_dict = self.raw_json['actions']
             actions = []
             for action_dict in actions_dict.values():
-                action = ActionFactory.create_action_from_json(action_dict)
-                clean_action = action.clean()
-                if clean_action:
-                    actions.append(clean_action)
+                if 'reference' in action_dict and action_dict['reference'] == '[[tables\\action_table.lua]]':
+                    if 'upgrade_actions' in action_dict:
+                        for upgrade_action_dict in action_dict['upgrade_actions'].values():
+                            action = ActionFactory.create_action_from_json(upgrade_action_dict)
+                            clean_action = action.clean()
+                            if clean_action:
+                                actions.append(clean_action)
+                    if 'ability_actions' in action_dict:
+                        for ability_action_dict in action_dict['ability_actions'].values():
+                            action = ActionFactory.create_action_from_json(ability_action_dict)
+                            clean_action = action.clean()
+                            if clean_action:
+                                actions.append(clean_action)
+                else:
+                    action = ActionFactory.create_action_from_json(action_dict)
+                    clean_action = action.clean()
+                    if clean_action:
+                        actions.append(clean_action)
         except KeyError:
             actions = None
 

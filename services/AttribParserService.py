@@ -130,7 +130,7 @@ class AttribParserService:
                                    filepath,
                                    factions: Dict[AnyStr, Faction],
                                    upgrades_to_path_by_faction: Dict[AnyStr, Dict[AnyStr, AnyStr]],
-                                   ) -> None:
+                                   ) -> List:
         upgrade_json_file = FileUtils.read_json_file(filepath)
         for faction_constname in self.faction_constnames:
             faction_upgrades_to_path = upgrades_to_path_by_faction[faction_constname]
@@ -145,6 +145,21 @@ class AttribParserService:
                 upgrade = Upgrade(upgrade_const, faction_constname, path, upgrade_json)
 
                 faction.add_upgrade(upgrade)
+
+        # Get upgrades by faction for upgrades without CONSTNAME
+        upgrades = []
+        folder_factions = {'allies': 'ALLY', 'allies_cw': 'CMW', 'axis': 'AXIS', 'axis_pe': 'PE'}
+        for folder, constname in folder_factions.items():
+            self.get_faction_upgrades_recursive(upgrade_json_file[folder], f"upgrade\\{folder}", constname, upgrades)
+        return upgrades
+
+    def get_faction_upgrades_recursive(self, target, path_so_far, faction_constname, result):
+        for key, value in target.items():
+            current_path = f"{path_so_far}\\{key}"
+            if 'upgrade_bag' in value:
+                result.append(Upgrade('', faction_constname, current_path, value))
+            else:
+                self.get_faction_upgrades_recursive(value, current_path, faction_constname, result)
 
     def get_abilities(self, filepath):
         abilities_json_file = FileUtils.read_json_file(filepath)

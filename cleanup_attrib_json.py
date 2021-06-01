@@ -11,7 +11,7 @@ from utils.FileUtils import FileUtils
 RAW_JSON_RELATIVE_PATH = './json/raw'
 CLEAN_JSON_RELATIVE_PATH = './json/clean'
 
-PULL_FROM_ATTRIB_PARSER = False
+PULL_FROM_ATTRIB_PARSER = True
 
 if PULL_FROM_ATTRIB_PARSER:
     # Cleanup json
@@ -52,7 +52,7 @@ attrib_parser_service.get_raw_sbps_by_faction(f"{RAW_JSON_RELATIVE_PATH}/sbps_st
 props = attrib_parser_service.get_raw_ebps_by_faction(f"{RAW_JSON_RELATIVE_PATH}/ebps_stats.json", factions)
 
 # Get all upgrade records for the Faction
-attrib_parser_service.get_raw_upgrade_by_faction(f"{RAW_JSON_RELATIVE_PATH}/upgrade_stats.json", factions, filtered_upgrades_to_path_by_faction)
+upgrades = attrib_parser_service.get_raw_upgrade_by_faction(f"{RAW_JSON_RELATIVE_PATH}/upgrade_stats.json", factions, filtered_upgrades_to_path_by_faction)
 
 # Get all abilities records
 abilities = attrib_parser_service.get_abilities(f'{RAW_JSON_RELATIVE_PATH}/abilities_stats.json')
@@ -99,6 +99,8 @@ for faction in factions.values():
             assert len(gun_ebps) == 1
             sbps.emplacement_gun_ebps_name = gun_ebps[0].ebps_filename
 
+print(f"Beginning cleaning ------------------")
+
 units_clean = []
 entities_clean = []
 upgrades_clean = []
@@ -110,6 +112,7 @@ for faction in factions.values():
 weapons_clean = [x.clean() for x in weapons]
 slot_items_clean = [x.clean() for x in slot_items]
 entities_clean.extend([x.clean() for x in props])
+upgrades_clean.extend([x.clean() for x in upgrades])
 
 # Write to clean json folder
 FileUtils.save_to_json('./json/clean/units.json', units_clean)

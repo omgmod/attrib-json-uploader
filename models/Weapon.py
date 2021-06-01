@@ -195,6 +195,7 @@ class Weapon(AbstractModel):
 
         result = {
             'reference': self.filename,
+            'type': Weapon._get_weapon_type(self.filename),
             'accuracy': accuracy,
             'cover_table': cover_table,
             'critical_table': critical_table,
@@ -232,8 +233,8 @@ class Weapon(AbstractModel):
         if tracking:
             result['tracking'] = tracking
 
-        if 'name' in self.raw_json:
-            result['name'] = StringUtils.remove_bracket_wrapping(self.raw_json['name'])
+        # if 'name' in self.raw_json:
+        #     result['name'] = StringUtils.remove_bracket_wrapping(self.raw_json['name'])
 
         result.update(damage_over_time)
         result.update(projectile)
@@ -241,6 +242,12 @@ class Weapon(AbstractModel):
         DictUtils.add_to_dict_if_in_source(self.raw_json, result, 'flinch_radius')
 
         return result
+
+    @staticmethod
+    def _get_weapon_type(reference):
+        path_elements = reference.split('\\')
+        subclass = path_elements[-2]
+        return subclass
 
     @staticmethod
     def _get_dlms_dict(data):

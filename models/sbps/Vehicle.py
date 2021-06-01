@@ -33,6 +33,8 @@ class Vehicle(Unit):
                     upgrade_actions
                 squad_loadout_ext.unit_list.unit_01
                     type.type references [ebps]
+                squad_upgrade_apply_ext.upgrades.upgrade_0X references [upgrade}
+                squad_upgrade_ext.upgrades.upgrade_0X references [upgrade}
                 squad_veterancy_ext.veterancy_rank_info
                     veterancy_rank_(01-05)
                         experience_value
@@ -42,6 +44,8 @@ class Vehicle(Unit):
         abilities = self.get_abilities()
         actions = self.get_actions()
         loadout = self.get_loadout()
+        squad_upgrade_apply = self.get_squad_upgrade_apply()
+        squad_upgrade = self.get_squad_upgrade()
         veterancy = self.get_veterancy()
 
         result = {
@@ -57,5 +61,10 @@ class Vehicle(Unit):
 
         if abilities:
             result['abilities'] = abilities
+        if squad_upgrade_apply:
+            result['squad_upgrade_apply'] = squad_upgrade_apply
+        if squad_upgrade:
+            result['squad_upgrade'] = squad_upgrade
+
         return result
 

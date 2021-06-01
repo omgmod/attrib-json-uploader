@@ -17,8 +17,9 @@ class ApplyModifiersAction(AbilityAction):
 
         modifiers = []
         for modifier_json in self.raw_json['modifiers'].values():
-            modifier = Modifier(modifier_json)
-            modifiers.append(modifier.clean())
+            if modifier_json != 'nil':
+                modifier = Modifier(modifier_json)
+                modifiers.append(modifier.clean())
         result = {
             'reference': reference,
             'modifiers': modifiers

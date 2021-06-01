@@ -47,6 +47,8 @@ class Infantry(Unit):
                 squad_loadout_ext.unit_list.unit_0X
                     type.type references [ebps]
                     num
+                squad_upgrade_apply_ext.upgrades.upgrade_0X references [upgrade}
+                squad_upgrade_ext.upgrades.upgrade_0X references [upgrade}
                 squad_veterancy_ext.veterancy_rank_info
                     veterancy_rank_(01-05)
                         experience_value
@@ -57,6 +59,8 @@ class Infantry(Unit):
         actions = self.get_actions()
         combat_behavior_suppression = self.get_combat_behaviour_suppression()
         loadout = self.get_loadout()
+        squad_upgrade_apply = self.get_squad_upgrade_apply()
+        squad_upgrade = self.get_squad_upgrade()
         veterancy = self.get_veterancy()
 
         result = {
@@ -72,6 +76,10 @@ class Infantry(Unit):
             result['actions'] = [action for action in actions]
         if abilities:
             result['abilities'] = abilities
+        if squad_upgrade_apply:
+            result['squad_upgrade_apply'] = squad_upgrade_apply
+        if squad_upgrade:
+            result['squad_upgrade'] = squad_upgrade
 
         return result
 

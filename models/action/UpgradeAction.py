@@ -1,8 +1,10 @@
 from pprint import pprint
+from typing import Dict, Union
 
 from models.action.Action import Action
 from models.action.ability.ApplyModifiersAction import ApplyModifiersAction
 from models.action.ability.DelayAction import DelayAction
+from models.action.ability.TargetAction import TargetAction
 from utils.StringUtils import StringUtils
 
 
@@ -92,6 +94,11 @@ class UpgradeAction(Action):
                 'reference': StringUtils.remove_bracket_file_endings(reference),
                 'crew_name': StringUtils.remove_bracket_file_endings(self.raw_json['crew_name'])
             }
+        elif reference == 'remove_crew_action':
+            return {
+                'reference': StringUtils.remove_bracket_file_endings(reference),
+                'crew_name': StringUtils.remove_bracket_file_endings(self.raw_json['crew_name'])
+            }
         elif reference == 'upgrade_remove':
             return {
                 'reference': StringUtils.remove_bracket_file_endings(reference),
@@ -111,6 +118,21 @@ class UpgradeAction(Action):
             delay_action = DelayAction(self.raw_json).clean()
             return delay_action
 
+        elif reference == 'timed_action':
+            subactions = []
+            for subactions_dict in self.raw_json['subactions'].values():
+                if 'ability_actions' in subactions_dict:
+                    for action_dict in subactions_dict['ability_actions'].values():
+                        action = UpgradeAction._build_ability_action(action_dict)
+                        clean_action = action.clean()
+                        if clean_action:
+                            subactions.append(clean_action)
+            return {
+                'reference': StringUtils.remove_bracket_file_endings(reference),
+                'duration': self.raw_json['duration'],
+                'subactions': subactions,
+            }
+
         # Actions to ignore
         elif reference in UpgradeAction.REFERENCES_TO_IGNORE:
             return None
@@ -119,7 +141,32 @@ class UpgradeAction(Action):
 
     REFERENCES_TO_IGNORE = ('retreat_status_action', 'alter_squad_ui_info_action', 'ui_decorator_action',
                             'ui_unit_modifier_action', 'animator_set_state', 'no_action', 'set_crush_obb',
-                            'animator_set_event',
+                            'animator_set_event', 'filter_action', 'hold_action', 'ui_selection_type_change'
                             )
+    @staticmethod
+    def _build_ability_action(action_json: Dict) -> Union[Dict, None]:
+        reference = UpgradeAction._get_ability_upgrade_reference(action_json['reference'])
+        if reference == 'apply_modifiers_action':
+            return ApplyModifiersAction(action_json).clean()
+        elif 'upgrade_action' in action_json['reference']:
+            # Bizarrely this is actually an upgrade action
+            print(f"WARNING Unexpected UpgradeAction {action_json['reference']} for action {action_json}")
+            return UpgradeAction(action_json).clean()
 
+        elif reference == 'delay' or reference == 'delay]]':  #TODO FIX THIS SPECIAL CASE
+            if reference == 'delay]]':
+                print(f"WARNING Malformed delay action reference {reference} for action {action_json}")
+            return DelayAction(action_json).clean()
 
+        elif reference == 'target':
+            return TargetAction(action_json).clean()
+
+        elif reference in ('no_action', 'ui_unit_modifier_action', 'ui_decorator_action'):
+            return None
+
+        else:
+            raise Exception(f"Unexpected ability action reference {reference} for RequirementAction")
+
+    @staticmethod
+    def _get_ability_upgrade_reference(path):
+        return path.split('\\')[2].replace('.lua]]', '')
