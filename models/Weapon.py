@@ -279,9 +279,9 @@ class Weapon(AbstractModel):
     def get_aim(self):
         try:
             aim_dict = self.raw_json['aim']
-            fire_aim_time = Weapon._get_min_max_dict(aim_dict['fire_aim_time'])
-            fire_aim_time_multiplier = Weapon._get_dlms_dict(aim_dict['fire_aim_time_multiplier'])
-            ready_aim_time = Weapon._get_min_max_dict(aim_dict['ready_aim_time'])
+            fire_aim_time = Weapon._get_min_max_dict(aim_dict.get('fire_aim_time', {}))
+            fire_aim_time_multiplier = Weapon._get_dlms_dict(aim_dict.get('fire_aim_time_multiplier', {}))
+            ready_aim_time = Weapon._get_min_max_dict(aim_dict.get('ready_aim_time', {}))
             result = {}
             if len(fire_aim_time) > 0:
                 result['fire_aim_time'] = fire_aim_time
@@ -291,8 +291,8 @@ class Weapon(AbstractModel):
                 result['ready_aim_time'] = ready_aim_time
             if 'post_firing_aim_time' in aim_dict:
                 result['post_firing_aim_time'] = aim_dict['post_firing_aim_time']
-            if 'post_firing_cooldown' in aim_dict:
-                result['post_firing_cooldown'] = aim_dict['post_firing_cooldown']
+            if 'post_firing_cooldown_interval' in aim_dict:
+                result['post_firing_cooldown_interval'] = aim_dict['post_firing_cooldown_interval']
             return result
         except KeyError:
             return None
@@ -334,12 +334,12 @@ class Weapon(AbstractModel):
             burst_dict = self.raw_json['burst']
             result = {}
             DictUtils.add_to_dict_if_in_source(burst_dict, result, 'can_burst')
-            Weapon._add_to_dict_if_not_empty(result, 'duration', Weapon._get_min_max_dict(burst_dict['duration']))
-            Weapon._add_to_dict_if_not_empty(result, 'rate_of_fire', Weapon._get_min_max_dict(burst_dict['rate_of_fire']))
+            Weapon._add_to_dict_if_not_empty(result, 'duration', Weapon._get_min_max_dict(burst_dict.get('duration', {})))
+            Weapon._add_to_dict_if_not_empty(result, 'rate_of_fire', Weapon._get_min_max_dict(burst_dict.get('rate_of_fire', {})))
             incremental_target_table_dict = burst_dict.get('incremental_target_table')
             if incremental_target_table_dict:
                 DictUtils.add_to_dict_if_in_source(incremental_target_table_dict, result, 'accuracy_multiplier', 'incremental_accuracy_multiplier')
-                Weapon._add_to_dict_if_not_empty(result, 'incremental_search_radius', Weapon._get_dlms_dict(incremental_target_table_dict['search_radius']))
+                Weapon._add_to_dict_if_not_empty(result, 'incremental_search_radius', Weapon._get_dlms_dict(incremental_target_table_dict.get('search_radius', {})))
             return result
         except KeyError:
             return None
@@ -348,8 +348,8 @@ class Weapon(AbstractModel):
         try:
             cooldown_dict = self.raw_json['cooldown']
             result = {}
-            Weapon._add_to_dict_if_not_empty(result, 'duration', Weapon._get_min_max_dict(cooldown_dict['duration']))
-            Weapon._add_to_dict_if_not_empty(result, 'duration_multiplier', Weapon._get_dlms_dict(cooldown_dict['duration_multiplier']))
+            Weapon._add_to_dict_if_not_empty(result, 'duration', Weapon._get_min_max_dict(cooldown_dict.get('duration', {})))
+            Weapon._add_to_dict_if_not_empty(result, 'duration_multiplier', Weapon._get_dlms_dict(cooldown_dict.get('duration_multiplier', {})))
             return result
         except KeyError:
             return None
@@ -517,9 +517,9 @@ class Weapon(AbstractModel):
         try:
             reload_dict = self.raw_json['reload']
             result = {}
-            Weapon._add_to_dict_if_not_empty(result, 'duration', Weapon._get_min_max_dict(reload_dict['duration']))
-            Weapon._add_to_dict_if_not_empty(result, 'duration_multiplier', Weapon._get_dlms_dict(reload_dict['duration_multiplier']))
-            Weapon._add_to_dict_if_not_empty(result, 'frequency', Weapon._get_min_max_dict(reload_dict['frequency']))
+            Weapon._add_to_dict_if_not_empty(result, 'duration', Weapon._get_min_max_dict(reload_dict.get('duration', {})))
+            Weapon._add_to_dict_if_not_empty(result, 'duration_multiplier', Weapon._get_dlms_dict(reload_dict.get('duration_multiplier', {})))
+            Weapon._add_to_dict_if_not_empty(result, 'frequency', Weapon._get_min_max_dict(reload_dict.get('frequency', {})))
             return result
         except KeyError:
             return None
@@ -567,7 +567,7 @@ class Weapon(AbstractModel):
             if 'suppression' not in suppression_dict:
                 return None  # No suppression
 
-            Weapon._add_to_dict_if_not_empty(result, 'suppression', Weapon._get_dlms_dict(suppression_dict['suppression']))
+            Weapon._add_to_dict_if_not_empty(result, 'suppression', Weapon._get_dlms_dict(suppression_dict.get('suppression', {})))
 
             add_to_dict_partial = partial(DictUtils.add_to_dict_if_in_source, suppression_dict, result)
             add_to_dict_partial('nearby_suppression_multiplier')

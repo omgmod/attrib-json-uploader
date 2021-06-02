@@ -1,4 +1,5 @@
 import json
+import time
 
 from services.WarcpDataService import WarcpDataService
 from utils.FileUtils import FileUtils
@@ -29,6 +30,7 @@ def parse_weapons_in_batches(weapons):
 
     return result
 
+start = time.process_time()
 
 CLEAN_JSON_RELATIVE_PATH = './json/clean'
 
@@ -62,3 +64,5 @@ print(f"Uploaded {len(entities_json)} entity stats records for version {version_
 print(f"Uploaded {len(weapons_json)} weapon stats records for version {version_id}")
 print(f"Uploaded {len(upgrades_json)} upgrade stats records for version {version_id}")
 print(f"Uploaded {len(slot_items_json)} slot_item stats records for version {version_id}")
+
+print(f"Finished upload to db - elapsed {round(time.process_time() - start, 2)}s")

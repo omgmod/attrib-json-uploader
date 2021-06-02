@@ -146,6 +146,7 @@ pyvenv.cfg
 *.ini
 *.ppk
 *.pem
+json/
 json/clean/
 json/raw/
 include/
