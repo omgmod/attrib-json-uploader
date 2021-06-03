@@ -1,3 +1,4 @@
+from functools import partial
 from typing import AnyStr, Dict, Union, List, Any
 
 from models.Requirement import Requirement
@@ -96,11 +97,24 @@ class RequirementAction(AbilityAction):
 
         result = {
             'reference': reference,
-            'nested_requirements': nested_requirements
         }
-        DictUtils.add_to_dict_if_in_source(requirement_json, result, 'operation')
-        DictUtils.add_to_dict_if_in_source(requirement_json, result, 'garrisoned')
-        DictUtils.add_to_dict_if_in_source(requirement_json, result, 'upgrade_name')
+        if len(nested_requirements) > 0:
+            result['nested_requirements'] = nested_requirements
+        add_to_dict_partial = partial(DictUtils.add_to_dict_if_in_source, requirement_json, result)
+        add_to_dict_partial('upgrade_name')
+        add_to_dict_partial('is_present')
+        add_to_dict_partial('upgrade_name')
+        add_to_dict_partial('slot_item')
+        add_to_dict_partial('min_owned')
+        add_to_dict_partial('max_owned')
+        add_to_dict_partial('not_moving')
+        add_to_dict_partial('garrisoned')
+        add_to_dict_partial('max_cap')
+        add_to_dict_partial('in_supply')
+        add_to_dict_partial('comparison')
+        add_to_dict_partial('number_of_members')
+        add_to_dict_partial('veterancy_rank')
+        add_to_dict_partial('cover_type_table')
 
         return result
 

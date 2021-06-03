@@ -35,6 +35,7 @@ class Requirement(AbstractModel):
         add_to_dict_partial('number_of_members')
         add_to_dict_partial('veterancy_rank')
         add_to_dict_partial('cover_type_table')
+        add_to_dict_partial('operation')
         if not set(self.raw_json.keys()).issubset(Requirement.EXPECTED_NESTED_REQUIREMENT_KEYS):
             if 'reason' in self.raw_json and self.raw_json['reason'] == '[[usage_and_display]]':
                 pass
