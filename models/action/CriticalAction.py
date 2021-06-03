@@ -1,6 +1,8 @@
+from models.SlotItem import SlotItem
 from models.action.Action import Action
 from models.modifiers.Modifier import Modifier
 from utils.DictUtils import DictUtils
+from utils.StringUtils import StringUtils
 
 
 class CriticalAction(Action):
@@ -27,6 +29,11 @@ class CriticalAction(Action):
                 modifiers.append(modifier.clean())
             if modifiers:
                 result['modifiers'] = modifiers
+        elif reference == 'slot_item_apply':
+            result['slot_item'] = StringUtils.remove_bracket_file_endings(self.raw_json['slot_item'])
+        elif reference == 'apply_crew_action':
+            result['crew_name'] = StringUtils.remove_bracket_wrapping(self.raw_json['crew_name'])
+
         if not set(self.raw_json.keys()).issubset(CriticalAction.EXPECTED_KEYS):
             if reference == '[[action\\critical_action\\animator_set_action.lua]]':
                 return None
@@ -34,4 +41,4 @@ class CriticalAction(Action):
 
         return result
 
-    EXPECTED_KEYS = {'reference', 'duration', 'permanent', 'modifiers', 'action_name'}
+    EXPECTED_KEYS = {'reference', 'duration', 'permanent', 'modifiers', 'action_name', 'slot_item', 'crew_name', }

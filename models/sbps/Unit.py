@@ -3,7 +3,6 @@ from typing import AnyStr, Dict, List, Union
 from factories.ActionFactory import ActionFactory
 from models.AbstractModel import AbstractModel
 from models.SquadVeterancy import SquadVeterancy
-from models.Upgrade import Upgrade
 from utils.StringUtils import StringUtils
 
 

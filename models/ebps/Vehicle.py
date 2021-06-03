@@ -1,4 +1,4 @@
-from models.Cover import Cover
+from factories.ActionFactory import ActionFactory
 from models.ebps.Entity import Entity
 from utils.DictUtils import DictUtils
 from utils.StringUtils import StringUtils
@@ -60,10 +60,11 @@ class Vehicle(Entity):
             'reference': self.ebps_filename,
             'faction': self.faction,
             'type': 'vehicle',
-            'cover': cover,
         }
         if abilities:
             result['abilities'] = abilities
+        if cover:
+            result['cover'] = cover
         if crush:
             result['crush'] = crush
         if hold:
@@ -82,9 +83,8 @@ class Vehicle(Entity):
     def get_crush(self):
         try:
             crush_ext_dict = self.raw_json['crush_ext']
-            result = {
-                'crushes_humans': crush_ext_dict['crushes_humans'],
-            }
+            result = {}
+            DictUtils.add_to_dict_if_in_source(crush_ext_dict, result, 'crushes_humans')
             DictUtils.add_to_dict_if_in_source(crush_ext_dict, result, 'default_crush_mode')
             return result
         except KeyError:
@@ -93,10 +93,39 @@ class Vehicle(Entity):
     def get_hold(self):
         try:
             hold_ext_dict = self.raw_json['hold_ext']
-            return {
-                'num_slots': hold_ext_dict['num_slots'],
-                'num_squad_slots': hold_ext_dict['num_squad_slots'],
-                'percent_unload_on_death': hold_ext_dict['percent_unload_on_death'],
-            }
+            on_loaded_hold_actions = []
+            if 'on_loaded_hold_actions' in hold_ext_dict:
+                for action_dict in hold_ext_dict['on_loaded_hold_actions'].values():
+                    action = ActionFactory.create_action_from_json(action_dict)
+                    clean_action = action.clean()
+                    if clean_action:
+                        on_loaded_hold_actions.append(clean_action)
+
+            on_loaded_squad_actions = []
+            if 'on_loaded_squad_actions' in hold_ext_dict:
+                if 'ability_actions' in hold_ext_dict['on_loaded_squad_actions']:
+                    for action_dict in hold_ext_dict['on_loaded_squad_actions']['ability_actions'].values():
+                        action = ActionFactory.create_action_from_json(action_dict)
+                        clean_action = action.clean()
+                        if clean_action:
+                            on_loaded_squad_actions.append(clean_action)
+                if 'upgrade_actions' in hold_ext_dict['on_loaded_squad_actions']:
+                    for action_dict in hold_ext_dict['on_loaded_squad_actions']['upgrade_actions'].values():
+                        action = ActionFactory.create_action_from_json(action_dict)
+                        clean_action = action.clean()
+                        if clean_action:
+                            on_loaded_squad_actions.append(clean_action)
+
+            result = {}
+            DictUtils.add_to_dict_if_in_source(hold_ext_dict, result, 'num_slots')
+            DictUtils.add_to_dict_if_in_source(hold_ext_dict, result, 'num_squad_slots')
+            DictUtils.add_to_dict_if_in_source(hold_ext_dict, result, 'percent_unload_on_death')
+
+            if len(on_loaded_hold_actions) > 0:
+                result['on_loaded_hold_actions'] = on_loaded_hold_actions
+            if len(on_loaded_squad_actions) > 0:
+                result['on_loaded_squad_actions'] = on_loaded_squad_actions
+
+            return result
         except KeyError:
             return None

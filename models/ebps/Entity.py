@@ -86,9 +86,8 @@ class Entity(AbstractModel):
     def get_health(self):
         try:
             health_ext_dict = self.raw_json['health_ext']
-            health = {
-                'hitpoints': health_ext_dict['hitpoints'],
-            }
+            health = {}
+            DictUtils.add_to_dict_if_in_source(health_ext_dict, health, 'hitpoints')
             DictUtils.add_to_dict_if_in_source(health_ext_dict, health, 'rear_damage_critical_type')
             DictUtils.add_to_dict_if_in_source(health_ext_dict, health, 'rear_damage_enabled')
             return health
@@ -98,9 +97,8 @@ class Entity(AbstractModel):
     def get_moving(self):
         try:
             moving_ext_dict = self.raw_json['moving_ext']
-            moving = {
-                'speed_max': moving_ext_dict['speed_max']
-            }
+            moving = {}
+            DictUtils.add_to_dict_if_in_source(moving_ext_dict, moving, 'speed_max')
             DictUtils.add_to_dict_if_in_source(moving_ext_dict, moving, 'acceleration')
             DictUtils.add_to_dict_if_in_source(moving_ext_dict, moving, 'deceleration')
             DictUtils.add_to_dict_if_in_source(moving_ext_dict, moving, 'rotation_rate')
@@ -123,9 +121,9 @@ class Entity(AbstractModel):
     def get_sight(self):
         try:
             sight_ext_dict = self.raw_json['sight_ext']
-            result = {
-                'sight_radius': sight_ext_dict['sight_package']['outer_radius'],
-            }
+            result = {}
+            if 'sight_package' in sight_ext_dict:
+                DictUtils.add_to_dict_if_in_source(sight_ext_dict['sight_package'], result, 'outer_radius')
             if 'detect_camouflage' in sight_ext_dict:
                 DictUtils.add_to_dict_if_in_source(sight_ext_dict['detect_camouflage'], result, 'detect_radius')
             return result
