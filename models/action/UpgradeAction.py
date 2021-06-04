@@ -5,6 +5,7 @@ from models.action.Action import Action
 from models.action.ability.ApplyModifiersAction import ApplyModifiersAction
 from models.action.ability.DelayAction import DelayAction
 from models.action.ability.TargetAction import TargetAction
+from utils.DictUtils import DictUtils
 from utils.StringUtils import StringUtils
 
 
@@ -31,10 +32,12 @@ class UpgradeAction(Action):
                 weapon = self.raw_json['weapon']['weapon']
             else:
                 weapon = self.raw_json['hardpoint']['weapon']['weapon']
-            return {
+            result = {
                 'reference': reference,
-                'weapon': weapon
+                'weapon': StringUtils.remove_bracket_file_endings(weapon)
             }
+            DictUtils.add_to_dict_if_in_source(self.raw_json, result, 'hardpoint')
+            return result
         elif reference == 'change_weapon':
             if 'weapon' in self.raw_json:
                 weapon = self.raw_json['weapon']
@@ -42,78 +45,116 @@ class UpgradeAction(Action):
                 weapon = self.raw_json['hardpoint']['weapon']
             if type(weapon) == dict:
                 weapon = weapon['weapon']
-            return {
+            result = {
                 'reference': StringUtils.remove_bracket_file_endings(reference),
-                'weapon': StringUtils.remove_bracket_file_endings(weapon),
             }
+            if 'weapon' in self.raw_json:
+                result['weapon'] = StringUtils.remove_bracket_file_endings(weapon)
+            DictUtils.add_to_dict_if_in_source(self.raw_json, result, 'hardpoint')
+            return result
         elif reference == 'upgrade_add':
-            return {
+            result = {
                 'reference': StringUtils.remove_bracket_file_endings(reference),
-                'upgrade': StringUtils.remove_bracket_file_endings(self.raw_json['upgrade'])
             }
+            if 'upgrade' in self.raw_json:
+                result['upgrade'] = StringUtils.remove_bracket_file_endings(self.raw_json['upgrade'])
+            return result
         elif reference == 'slot_item_add':
-            return {
+            result = {
                 'reference': StringUtils.remove_bracket_file_endings(reference),
-                'slot_item': StringUtils.remove_bracket_file_endings(self.raw_json['slot_item'])
             }
+            if 'slot_item' in self.raw_json:
+                result['slot_item'] = StringUtils.remove_bracket_file_endings(self.raw_json['slot_item'])
+            return result
+        elif reference == 'slot_item_remove':
+            result = {
+                'reference': StringUtils.remove_bracket_file_endings(reference),
+            }
+            if 'slot_item' in self.raw_json:
+                result['slot_item'] = StringUtils.remove_bracket_file_endings(self.raw_json['slot_item'])
+            return result
         elif reference == 'slot_item_replace':
-            return {
+            result = {
                 'reference': StringUtils.remove_bracket_file_endings(reference),
-                'old_slot_item': StringUtils.remove_bracket_file_endings(self.raw_json['old_slot_item']),
-                'new_slot_item': StringUtils.remove_bracket_file_endings(self.raw_json['new_slot_item']),
             }
+            if 'old_slot_item' in self.raw_json:
+                result['old_slot_item'] = StringUtils.remove_bracket_file_endings(self.raw_json['old_slot_item'])
+            if 'new_slot_item' in self.raw_json:
+                result['new_slot_item'] = StringUtils.remove_bracket_file_endings(self.raw_json['new_slot_item'])
+            return result
         elif reference == 'change_move_data_action':
-            return {
+            result = {
                 'reference': StringUtils.remove_bracket_file_endings(reference),
-                'acceleration_multiplier': self.raw_json['acceleration_multiplier']
             }
+            DictUtils.add_to_dict_if_in_source(self.raw_json, result, 'acceleration_multiplier')
+            return result
         elif reference == 'change_weapon_target_type':
-            return {
+            result = {
                 'reference': StringUtils.remove_bracket_file_endings(reference),
-                'new_type': StringUtils.remove_bracket_file_endings(self.raw_json['new_type']),
-                'original_type': StringUtils.remove_bracket_file_endings(self.raw_json['original_type']),
             }
+            if 'new_type' in self.raw_json:
+                result['new_type'] = StringUtils.remove_bracket_file_endings(self.raw_json['new_type'])
+            if 'original_type' in self.raw_json:
+                result['original_type'] = StringUtils.remove_bracket_file_endings(self.raw_json['original_type'])
+            return result
         elif reference == 'change_critical_target_type':
-            return {
+            result = {
                 'reference': StringUtils.remove_bracket_file_endings(reference),
-                'new_type': StringUtils.remove_bracket_file_endings(self.raw_json['new_type']),
-                'original_type': StringUtils.remove_bracket_file_endings(self.raw_json['original_type']),
             }
+            if 'new_type' in self.raw_json:
+                result['new_type'] = StringUtils.remove_bracket_file_endings(self.raw_json['new_type'])
+            if 'original_type' in self.raw_json:
+                result['original_type'] = StringUtils.remove_bracket_file_endings(self.raw_json['original_type'])
+            return result
         elif reference == 'replace_ability_action':
-            return {
+            result = {
                 'reference': StringUtils.remove_bracket_file_endings(reference),
-                'ability_to_add': StringUtils.remove_bracket_file_endings(self.raw_json['ability_to_add']),
-                'ability_to_remove': StringUtils.remove_bracket_file_endings(self.raw_json['ability_to_remove']),
             }
+            if 'ability_to_add' in self.raw_json:
+                result['ability_to_add'] = StringUtils.remove_bracket_file_endings(self.raw_json['ability_to_add'])
+            if 'ability_to_remove' in self.raw_json:
+                result['ability_to_remove'] = StringUtils.remove_bracket_file_endings(self.raw_json['ability_to_remove'])
+            return result
         elif reference == 'remove_weapon':
             return {
                 'reference': StringUtils.remove_bracket_file_endings(reference)
             }
         elif reference == 'add_crew_action':
-            return {
+            result = {
                 'reference': StringUtils.remove_bracket_file_endings(reference),
-                'crew_name': StringUtils.remove_bracket_file_endings(self.raw_json['crew_name'])
             }
+            if 'crew_name' in self.raw_json:
+                result['crew_name'] = StringUtils.remove_bracket_file_endings(self.raw_json['crew_name'])
+            return result
         elif reference == 'remove_crew_action':
-            return {
+            result = {
                 'reference': StringUtils.remove_bracket_file_endings(reference),
-                'crew_name': StringUtils.remove_bracket_file_endings(self.raw_json['crew_name'])
             }
+            if 'crew_name' in self.raw_json:
+                result['crew_name'] = StringUtils.remove_bracket_file_endings(self.raw_json['crew_name'])
+            return result
         elif reference == 'upgrade_remove':
-            return {
+            result = {
                 'reference': StringUtils.remove_bracket_file_endings(reference),
-                'upgrade': StringUtils.remove_bracket_file_endings(self.raw_json['upgrade'])
             }
+            if 'upgrade' in self.raw_json:
+                result['upgrade'] = StringUtils.remove_bracket_file_endings(self.raw_json['upgrade'])
+            return result
         elif reference == 'activate_extension_action':
-            return {
+            result = {
                 'reference': StringUtils.remove_bracket_file_endings(reference),
-                'repair_station_ext': StringUtils.remove_bracket_file_endings(self.raw_json['repair_station_ext'])
             }
+            if 'repair_station_ext' in self.raw_json:
+                result['repair_station_ext'] = StringUtils.remove_bracket_file_endings(self.raw_json['repair_station_ext'])
+            return result
         elif reference == 'garrison_squad_action':
-            return {
+            result = {
                 'reference': StringUtils.remove_bracket_file_endings(reference),
-                'squad_blueprint': StringUtils.remove_bracket_file_endings(self.raw_json['squad_blueprint'])
             }
+            if 'squad_blueprint' in self.raw_json:
+                result['squad_blueprint'] = StringUtils.remove_bracket_file_endings(
+                    self.raw_json['squad_blueprint'])
+            return result
         elif reference == 'delay_action':
             delay_action = DelayAction(self.raw_json).clean()
             return delay_action
@@ -127,11 +168,12 @@ class UpgradeAction(Action):
                         clean_action = action.clean()
                         if clean_action:
                             subactions.append(clean_action)
-            return {
+            result = {
                 'reference': StringUtils.remove_bracket_file_endings(reference),
-                'duration': self.raw_json['duration'],
                 'subactions': subactions,
             }
+            DictUtils.add_to_dict_if_in_source(self.raw_json, result, 'duration')
+            return result
 
         # Actions to ignore
         elif reference in UpgradeAction.REFERENCES_TO_IGNORE:
@@ -141,8 +183,10 @@ class UpgradeAction(Action):
 
     REFERENCES_TO_IGNORE = ('retreat_status_action', 'alter_squad_ui_info_action', 'ui_decorator_action',
                             'ui_unit_modifier_action', 'animator_set_state', 'no_action', 'set_crush_obb',
-                            'animator_set_event', 'filter_action', 'hold_action', 'ui_selection_type_change'
+                            'animator_set_event', 'filter_action', 'hold_action', 'ui_selection_type_change',
+                            'swap_actor_action', 'animator_set_variable',
                             )
+
     @staticmethod
     def _build_ability_action(action_json: Dict) -> Union[Dict, None]:
         reference = UpgradeAction._get_ability_upgrade_reference(action_json['reference'])

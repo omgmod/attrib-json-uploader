@@ -2,6 +2,7 @@ from functools import partial
 
 from models.AbstractModel import AbstractModel
 from utils.DictUtils import DictUtils
+from utils.StringUtils import StringUtils
 
 
 class Requirement(AbstractModel):
@@ -20,10 +21,11 @@ class Requirement(AbstractModel):
         result = {
             'reference': reference
         }
+        if 'upgrade_name' in self.raw_json:
+            result['upgrade_name'] = StringUtils.remove_bracket_file_endings(self.raw_json['upgrade_name'])
+
         add_to_dict_partial = partial(DictUtils.add_to_dict_if_in_source, self.raw_json, result)
-        add_to_dict_partial('upgrade_name')
         add_to_dict_partial('is_present')
-        add_to_dict_partial('upgrade_name')
         add_to_dict_partial('slot_item')
         add_to_dict_partial('min_owned')
         add_to_dict_partial('max_owned')
@@ -36,6 +38,7 @@ class Requirement(AbstractModel):
         add_to_dict_partial('veterancy_rank')
         add_to_dict_partial('cover_type_table')
         add_to_dict_partial('operation')
+        add_to_dict_partial('injured')
         if not set(self.raw_json.keys()).issubset(Requirement.EXPECTED_NESTED_REQUIREMENT_KEYS):
             if 'reason' in self.raw_json and self.raw_json['reason'] == '[[usage_and_display]]':
                 pass
@@ -52,4 +55,4 @@ class Requirement(AbstractModel):
     EXPECTED_NESTED_REQUIREMENT_KEYS = {'reference', 'not_moving', 'slot_item', 'min_owned', 'max_owned',
                                         'ui_name', 'garrisoned', 'is_present', 'upgrade_name', 'max_cap', 'reason',
                                         'in_supply', 'comparison', 'number_of_members', 'veterancy_rank', 'cover_type_table',
-                                        'display_requirement', 'include_queued'}
+                                        'display_requirement', 'include_queued', 'injured'}

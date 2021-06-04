@@ -70,7 +70,8 @@ class Unit(AbstractModel):
         for unit_dict in unit_list_dict.values():
             # Somehow some sbps have unused units in the loadout without type, skip them
             if 'type' in unit_dict:
-                ebps = StringUtils.remove_bracket_file_endings(unit_dict['type']['type'])
+                # Very rarely, can have spaces in file paths
+                ebps = StringUtils.remove_bracket_file_endings(StringUtils.remove_spaced_file_paths(unit_dict['type']['type']))
                 number = unit_dict.get('num', 1)  # default to 1 if no number given
                 loadout[ebps] = number
 

@@ -34,9 +34,10 @@ class SlotItem(AbstractModel):
         try:
             weapon_dict = self.raw_json['weapon']
             result = {
-                'type': StringUtils.remove_bracket_wrapping(weapon_dict['type']),
                 'weapon': StringUtils.remove_bracket_file_endings(weapon_dict['weapon']),
             }
+            if 'type' in weapon_dict:
+                result['type'] = StringUtils.remove_bracket_wrapping(weapon_dict['type'])
             return result
         except KeyError:
             return None

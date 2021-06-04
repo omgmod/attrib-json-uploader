@@ -13,6 +13,10 @@ class Vehicle(Entity):
         """
             Properties to look at:
                 ability_ext.abilities.ability_0X references [abilities]
+                action_apply_ext.actions
+                    ability_actions.action_0X
+                    critical_actions.action_0X
+                    upgrade_actions.action_0X
                 combat_ext.hardpoints.hardpoint_0X
                     weapon_table.weapon_01.weapon references [weapon]
                 cover_ext.tp_X references [cover]
@@ -45,7 +49,9 @@ class Vehicle(Entity):
         print(f"Processing [{self.ebps_filename}]")
 
         abilities = self.get_abilities()
+        actions = self.get_actions()
         weapons = self.get_weapons()
+        hardpoints = self.get_hardpoints()
         cover = self.get_cover()
         crush = self.get_crush()
         health = self.get_health()
@@ -63,6 +69,8 @@ class Vehicle(Entity):
         }
         if abilities:
             result['abilities'] = abilities
+        if actions:
+            result['actions'] = actions
         if cover:
             result['cover'] = cover
         if crush:
@@ -71,6 +79,8 @@ class Vehicle(Entity):
             result['hold'] = hold
         if len(weapons) > 0:
             result['weapons'] = weapons
+        if len(hardpoints) > 0:
+            result['hardpoints'] = hardpoints
         if moving:
             result['moving'] = moving
         result.update(health)

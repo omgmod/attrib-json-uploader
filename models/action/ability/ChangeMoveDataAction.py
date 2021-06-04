@@ -1,4 +1,5 @@
 from models.action.AbilityAction import AbilityAction
+from utils.DictUtils import DictUtils
 
 
 class ChangeMoveDataAction(AbilityAction):
@@ -8,7 +9,10 @@ class ChangeMoveDataAction(AbilityAction):
 
     def clean(self):
         reference = ChangeMoveDataAction.get_reference_with_depth(self.raw_json['reference'], 2)
-        return {
+        result = {
             'reference': reference,
-            'acceleration_multiplier': self.raw_json['acceleration_multiplier']
         }
+        DictUtils.add_to_dict_if_in_source(self.raw_json, result, 'acceleration_multiplier')
+        DictUtils.add_to_dict_if_in_source(self.raw_json, result, 'deceleration_multiplier')
+
+        return result

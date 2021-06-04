@@ -1,4 +1,4 @@
-from typing import AnyStr, Tuple
+from typing import AnyStr, Tuple, List
 
 from models.action.AbilityAction import AbilityAction
 from models.action.Action import Action
@@ -26,7 +26,28 @@ class ActionFactory:
         'animator_set_state': NoopAction,
         'change_move_data_action': ChangeMoveDataAction,
         'heal_action': HealAction,
+        'ui_unit_modifier_action': NoopAction,
     }
+
+    @staticmethod
+    def build_clean_actions_from_json(actions_list) -> List:
+        """"""
+        try:
+            result = []
+            for action in actions_list:
+                if type(action) == str:
+                    return None
+                reference = action['reference']
+                if reference in ('[[tables\\ability_action_table.lua]]', '[[tables\\upgrade_action_table.lua]]'):
+                    subresult = ActionFactory.build_clean_actions_from_json(action.values())
+                    result.extend(subresult)
+                else:
+                    # single action
+                    action_instance = ActionFactory.create_action_from_json(action)
+                    result.append(action_instance.clean())
+            return result
+        except TypeError:
+            return []
 
     @staticmethod
     def create_action_from_json(json_dict) -> Action:
@@ -54,6 +75,8 @@ class ActionFactory:
 
             return action_instance
         except TypeError:
+            return NoopAction(json_dict)
+        except KeyError:
             return NoopAction(json_dict)
 
     @staticmethod

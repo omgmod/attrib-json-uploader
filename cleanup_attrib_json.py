@@ -42,6 +42,9 @@ filtered_units_to_path_by_faction = attrib_parser_service.get_const_mapping_by_f
                                                                                        f"{RAW_JSON_RELATIVE_PATH}/unit_consts_by_faction.json")
 filtered_upgrades_to_path_by_faction = attrib_parser_service.get_const_mapping_by_faction(upgrades_by_faction,
                                                                                           f"{RAW_JSON_RELATIVE_PATH}/upgrade_consts_by_faction.json")
+filtered_docmarker_upgrades_to_path_by_faction = attrib_parser_service.get_const_mapping_by_faction(docmarkers_by_faction,
+                                                                                                    f"{RAW_JSON_RELATIVE_PATH}/doc_consts_by_faction.json",
+                                                                                                    flatten_docmarkers=True)
 
 factions = {faction_constname: Faction(faction_constname) for faction_constname in faction_constnames}
 
@@ -104,10 +107,12 @@ print(f"Beginning cleaning ------------------")
 units_clean = []
 entities_clean = []
 upgrades_clean = []
+docmarkers_map = {}
 for faction in factions.values():
     units_clean.extend([x.clean() for x in faction.units.values()])
     entities_clean.extend([x.clean() for x in faction.entities.values()])
     upgrades_clean.extend([x.clean() for x in faction.upgrades.values()])
+    docmarkers_map.update({k: {'value': v, 'faction': faction.constname} for k, v in filtered_docmarker_upgrades_to_path_by_faction[faction.constname].items()})
 
 weapons_clean = [x.clean() for x in weapons]
 slot_items_clean = [x.clean() for x in slot_items]
@@ -120,5 +125,6 @@ FileUtils.save_to_json('./json/clean/entities.json', entities_clean)
 FileUtils.save_to_json('./json/clean/upgrades.json', upgrades_clean)
 FileUtils.save_to_json('./json/clean/weapons.json', weapons_clean)
 FileUtils.save_to_json('./json/clean/slot_items.json', slot_items_clean)
+FileUtils.save_to_json('./json/clean/docmarkers.json', docmarkers_map)
 
 print("Finished")

@@ -2,6 +2,7 @@ from typing import AnyStr, Dict, Union, List, Any
 
 from models.action.AbilityAction import AbilityAction
 from models.modifiers.Modifier import Modifier
+from utils.DictUtils import DictUtils
 from utils.StringUtils import StringUtils
 
 
@@ -57,6 +58,30 @@ class DelayAction(AbilityAction):
             return {
                 'reference': 'reference',
                 'upgrade': StringUtils.remove_bracket_file_endings(action_json['upgrade'])
+            }
+        elif reference == 'add_weapon':
+            if 'weapon' in action_json:
+                weapon = action_json['weapon']['weapon']
+            else:
+                weapon = action_json['hardpoint']['weapon']['weapon']
+
+            result = {
+                'reference': reference,
+                'weapon': StringUtils.remove_bracket_file_endings(weapon)
+            }
+            DictUtils.add_to_dict_if_in_source(action_json, result, 'hardpoint')
+            return result
+        elif reference == 'change_weapon':
+            result = {
+                'reference': reference,
+            }
+            DictUtils.add_to_dict_if_in_source(action_json, result, 'weapon')
+            DictUtils.add_to_dict_if_in_source(action_json, result, 'hardpoint')
+            return result
+        elif reference == 'set_crush_mode':
+            return {
+                'reference': reference,
+                'crush_mode': StringUtils.remove_bracket_wrapping(action_json['crush_mode'])
             }
 
         # If we have recursive delay actions, skip them

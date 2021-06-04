@@ -10,6 +10,10 @@ class Infantry(Entity):
         """
             Properties to look at:
                 ability_ext.abilities.ability_0X references [abilities]
+                action_apply_ext.actions
+                    ability_actions.action_0X
+                    critical_actions.action_0X
+                    upgrade_actions.action_0X
                 camoflage_ext                   SKIP FOR NOW
                     attack_priority
                     detection_radius
@@ -31,7 +35,9 @@ class Infantry(Entity):
         print(f"Processing [{self.ebps_filename}]")
 
         abilities = self.get_abilities()
+        actions = self.get_actions()
         weapons = self.get_weapons()
+        hardpoints = self.get_hardpoints()
         cover = self.get_cover()
         health = self.get_health()
         moving = self.get_moving()
@@ -49,8 +55,12 @@ class Infantry(Entity):
         }
         if abilities:
             result['abilities'] = abilities
+        if actions:
+            result['actions'] = actions
         if len(weapons) > 0:
             result['weapons'] = weapons
+        if len(hardpoints) > 0:
+            result['hardpoints'] = hardpoints
         result.update(health)
         result.update(population)
         result.update(sight)

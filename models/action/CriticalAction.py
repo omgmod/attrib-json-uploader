@@ -21,6 +21,8 @@ class CriticalAction(Action):
         }
         DictUtils.add_to_dict_if_in_source(self.raw_json, result, 'duration')
         DictUtils.add_to_dict_if_in_source(self.raw_json, result, 'permanent')
+        DictUtils.add_to_dict_if_in_source(self.raw_json, result, 'damage')
+        DictUtils.add_to_dict_if_in_source(self.raw_json, result, 'percentage')
 
         if 'modifiers' in self.raw_json:
             modifiers = []
@@ -41,4 +43,6 @@ class CriticalAction(Action):
 
         return result
 
-    EXPECTED_KEYS = {'reference', 'duration', 'permanent', 'modifiers', 'action_name', 'slot_item', 'crew_name', }
+    EXPECTED_KEYS = {'reference', 'duration', 'permanent', 'modifiers', 'action_name', 'slot_item',
+                     'crew_name', 'damage', 'percentage',
+                     'do_action_state_name', 'state_machine_name', 'scale_x', 'scale_y', 'deform_decal', 'undoable'}

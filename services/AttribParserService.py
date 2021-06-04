@@ -26,11 +26,14 @@ class AttribParserService:
     def get_const_mapping_by_faction(self,
                                      constnames_by_faction: Dict[AnyStr, Set[AnyStr]],
                                      const_json_filepath: AnyStr,
+                                     flatten_docmarkers: bool = False,
                                      ) -> Dict[AnyStr, Dict[AnyStr, AnyStr]]:
         """
             Get only the const filenames from the given const_json_filepath that are in the set of constnames_by_faction.
         """
         const_data = FileUtils.read_json_file(const_json_filepath)
+        if flatten_docmarkers:
+            const_data = self.flatten_docmarker_const_mapping(const_data)
 
         # Remove faction. from constnames_by_faction when searching
         result = {}
@@ -39,12 +42,36 @@ class AttribParserService:
             constname_set = constnames_by_faction[faction]
             raw_const_set = const_data[faction]
             for constname in constname_set:
-                search_key = constname.replace(f"{faction}.", "")
+                if flatten_docmarkers:
+                    search_key = constname
+                else:
+                    search_key = constname.replace(f"{faction}.", "")
                 if search_key in raw_const_set:
                     faction_result[search_key] = raw_const_set[search_key]
 
             result[faction] = faction_result
 
+        return result
+
+    def flatten_docmarker_const_mapping(self, constnames_by_faction: Dict[AnyStr, Dict[AnyStr, Dict[AnyStr, Dict[AnyStr, Dict[AnyStr, AnyStr]]]]]):
+        """
+            Docmarkers have a 5 level hieraarchy of
+            wrapping dict -> faction CONSTNAME -> doctrine CONSTNAME -> TR -> B -> T
+            constnames_by_action -> CMW -> ENGINEERS -> TR1 -> B1 -> T1 -> string
+            Flatten to
+            constnames_by_action -> CMW -> OMGDOCUPG.CMW.ENGINEERS.TR1.B1.T1 -> string
+        """
+        result = {}
+        for faction in self.faction_constnames:
+            faction_result = {}
+            faction_constname_set = constnames_by_faction[faction]
+            for doctrine_constname, doctrine_values in faction_constname_set.items():
+                for tr_constname, tr_values in doctrine_values.items():
+                    for b_constname, b_values in tr_values.items():
+                        for t_constname, t_value in b_values.items():
+                            new_constname_key = f'OMGDOCUPG.{faction}.{doctrine_constname}.{tr_constname}.{b_constname}.{t_constname}'
+                            faction_result[new_constname_key] = StringUtils.remove_file_endings(t_value)
+            result[faction] = faction_result
         return result
 
     def get_raw_sbps_by_faction(self,

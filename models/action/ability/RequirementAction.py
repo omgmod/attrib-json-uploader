@@ -2,6 +2,7 @@ from functools import partial
 from typing import AnyStr, Dict, Union, List, Any
 
 from models.Requirement import Requirement
+from models.action.ability.ChangeMoveDataAction import ChangeMoveDataAction
 from models.action.ability.TargetAction import TargetAction
 from models.action.ability.UpgradeRemoveAction import UpgradeRemoveAction
 from utils.DictUtils import DictUtils
@@ -10,6 +11,7 @@ from models.action.Action import Action
 from models.action.UpgradeAction import UpgradeAction
 from models.action.ability.ApplyModifiersAction import ApplyModifiersAction
 from models.action.ability.DelayAction import DelayAction
+from utils.StringUtils import StringUtils
 
 
 class RequirementAction(AbilityAction):
@@ -33,7 +35,7 @@ class RequirementAction(AbilityAction):
         if 'ability_actions' in action_table_json:
             clean_ability_actions = [RequirementAction._build_ability_action(a) for a in action_table_json['ability_actions'].values()]
         if 'upgrade_actions' in action_table_json:
-            clean_upgrade_actions = [RequirementAction._build_upgrade_action(a) for a in action_table_json['upgrade_actions'].values()]
+            clean_upgrade_actions = RequirementAction._build_clean_upgrade_actions(action_table_json['upgrade_actions'].values())
 
         result = {
             'reference': Action.get_reference_with_depth(self.raw_json['reference'], 2),
@@ -46,6 +48,25 @@ class RequirementAction(AbilityAction):
             result['upgrade_actions'] = [x for x in clean_upgrade_actions if x is not None]
 
         return result
+
+    @staticmethod
+    def _build_clean_upgrade_actions(upgrade_actions):
+        try:
+            result = []
+            for action in upgrade_actions:
+                if type(action) == str:
+                    return None
+                reference = action['reference']
+                if reference == '[[tables\\ability_action_table.lua]]':
+                    subresult = RequirementAction._build_clean_upgrade_actions(action.values())
+                    result.extend(subresult)
+                else:
+                    # single action
+                    action_instance = RequirementAction._build_upgrade_action(action)
+                    result.append(action_instance)
+            return result
+        except KeyError:
+            return []
 
     @staticmethod
     def _build_ability_action(action_json: Dict) -> Union[Dict, None]:
@@ -61,6 +82,8 @@ class RequirementAction(AbilityAction):
             if reference == 'delay]]':
                 print(f"WARNING Malformed delay action reference {reference} for action {action_json}")
             return DelayAction(action_json).clean()
+        elif reference == 'change_move_data_action':
+            return ChangeMoveDataAction(action_json).clean()
 
         elif reference == 'requirement_action':
             return RequirementAction(action_json).clean()
@@ -72,7 +95,8 @@ class RequirementAction(AbilityAction):
             return UpgradeRemoveAction(action_json).clean()
 
         elif reference in ('no_action', 'ui_unit_modifier_action', 'ui_decorator_action', 'activate_extension_action',
-                           'animator_set_variable', 'ui_selection_type_change'):
+                           'animator_set_variable', 'ui_selection_type_change', 'pass_type_action', 'set_crush_mode',
+                           'modify_crush_obb'):
             return None
 
         else:
@@ -100,10 +124,12 @@ class RequirementAction(AbilityAction):
         }
         if len(nested_requirements) > 0:
             result['nested_requirements'] = nested_requirements
+
+        if 'upgrade_name' in requirement_json:
+            result['upgrade_name'] = StringUtils.remove_bracket_file_endings(requirement_json['upgrade_name'])
+
         add_to_dict_partial = partial(DictUtils.add_to_dict_if_in_source, requirement_json, result)
-        add_to_dict_partial('upgrade_name')
         add_to_dict_partial('is_present')
-        add_to_dict_partial('upgrade_name')
         add_to_dict_partial('slot_item')
         add_to_dict_partial('min_owned')
         add_to_dict_partial('max_owned')

@@ -63,6 +63,16 @@ slot_items_table = Table(
     Column('json', String),
 )
 
+docmarkers_table = Table(
+    "stats_docmarkers",
+    metadata,
+    Column('id', Integer, primary_key=True),
+    Column('CONSTNAME', String(100)),
+    Column('value', String(150)),
+    Column('faction', String(50)),
+    Column('version_id', Integer),
+)
+
 def rds_connection_wrapper(function):
     def wrap_function(*args, **kwargs):
         aws_config = Config.get_instance()['AWS']
@@ -181,6 +191,20 @@ class WarcpDataService:
         connection.commit()
 
     @rds_connection_wrapper
+    def insert_docmarkers(self, data: Dict, version_id: int, connection: Connection = None) -> None:
+        stmt_input = []
+        for constname, docmarker in data.items():
+            stmt_input.append({
+                'CONSTNAME': constname,
+                'value': docmarker.get('value'),
+                'faction': docmarker.get('faction'),
+                'version_id': version_id,
+            })
+
+        connection.execute(docmarkers_table.insert(), stmt_input)
+        connection.commit()
+
+    @rds_connection_wrapper
     def get_base_constnames(self,
                             connection: Connection = None,
                             ) -> Tuple[Set[AnyStr], Dict[AnyStr, Set[AnyStr]], Dict[AnyStr, Set[AnyStr]], Dict[AnyStr, Set[AnyStr]]]:
@@ -193,7 +217,7 @@ class WarcpDataService:
         units_by_faction = WarcpDataService._get_constnames_by_faction(connection, faction_constnames, 'units')
 
         # Get docmarkers by faction
-        docmarkers_by_faction = WarcpDataService._get_constnames_by_faction(connection, faction_constnames, 'doctrineabilities', tier=True)
+        docmarkers_by_faction = WarcpDataService._get_constnames_by_faction(connection, faction_constnames, 'doctrineabilities', constname_prefix='OMGDOCUPG.', tier=True)
 
         # Get upgrades by faction
         upgrades_by_faction = WarcpDataService._get_constnames_by_faction(connection, faction_constnames, 'upgrades')
@@ -212,12 +236,13 @@ class WarcpDataService:
     def _get_constnames_by_faction(connection: Connection,
                                    faction_constnames: Set[AnyStr],
                                    tablename: AnyStr,
+                                   constname_prefix: AnyStr = '',
                                    tier=False
                                    ) -> Dict[AnyStr, Set[AnyStr]]:
         by_faction = {}
         for faction in faction_constnames:
             result = connection.execute(
-                text(f"select CONSTNAME from {tablename} where CONSTNAME like '{faction}%' {'and tier > 0' if tier else ''}"))
+                text(f"select CONSTNAME from {tablename} where CONSTNAME like '{constname_prefix}{faction}%' {'and tier > 0' if tier else ''}"))
             by_faction[faction] = {x['CONSTNAME'] for x in result}
         return by_faction
 

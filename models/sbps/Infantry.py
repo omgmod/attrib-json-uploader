@@ -73,7 +73,7 @@ class Infantry(Unit):
             'veterancy': veterancy
         }
         if actions:
-            result['actions'] = [action for action in actions]
+            result['squad_action_apply'] = [action for action in actions]
         if abilities:
             result['abilities'] = abilities
         if squad_upgrade_apply:

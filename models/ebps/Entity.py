@@ -15,7 +15,7 @@ class Entity(AbstractModel):
     def __init__(self, raw_json, faction, filename):
         super().__init__(raw_json)
         self.faction = faction
-        self.ebps_filename = filename
+        self.ebps_filename = StringUtils.remove_spaced_file_paths(filename)
 
     def get_abilities(self):
         """
@@ -33,16 +33,19 @@ class Entity(AbstractModel):
             action_table_json = self.raw_json['action_apply_ext']['actions']
 
             clean_ability_actions = None
+            clean_critical_actions = None
             clean_upgrade_actions = None
             if 'ability_actions' in action_table_json:
-                clean_ability_actions = [ActionFactory.create_action_from_json(a).clean() for a in
-                                         action_table_json['ability_actions'].values()]
+                clean_ability_actions = ActionFactory.build_clean_actions_from_json(action_table_json['ability_actions'].values())
+            if 'critical_actions' in action_table_json:
+                clean_critical_actions = ActionFactory.build_clean_actions_from_json(action_table_json['critical_actions'].values())
             if 'upgrade_actions' in action_table_json:
-                clean_upgrade_actions = [ActionFactory.create_action_from_json(a).clean() for a in
-                                         action_table_json['upgrade_actions'].values()]
+                clean_upgrade_actions = ActionFactory.build_clean_actions_from_json(action_table_json['upgrade_actions'].values())
             clean_actions = []
             if clean_ability_actions:
                 clean_actions.extend([x for x in clean_ability_actions if x is not None])
+            if clean_critical_actions:
+                clean_actions.extend([x for x in clean_critical_actions if x is not None])
             if clean_upgrade_actions:
                 clean_actions.extend([x for x in clean_upgrade_actions if x is not None])
             return clean_actions
@@ -72,6 +75,35 @@ class Entity(AbstractModel):
         except KeyError:
             pass
         return weapons
+
+    def get_hardpoints(self):
+        result = {}
+        try:
+            hardpoints = self.raw_json['combat_ext']['hardpoints']
+            for hardpoint_key, hardpoint_dict in hardpoints.items():
+                try:
+                    hardpoint_number = int(hardpoint_key.replace('hardpoint_', ''))
+                    weapons = []
+                    for weapon_dict in hardpoint_dict['weapon_table'].values():
+                        if 'type' in weapon_dict and weapon_dict['type'] == '[[accessory]]':
+                            continue
+                        if 'weapon' in weapon_dict:
+                            weapon = weapon_dict['weapon']
+                            weapons.append(StringUtils.remove_bracket_file_endings(weapon))
+                    if len(weapons) > 0:
+                        result[hardpoint_number] = weapons
+                    if len(hardpoint_dict['weapon_table']) > 1 and hardpoint_dict['weapon_table']['weapon_02']['type'] != '[[accessory]]':
+                        if hardpoint_dict['weapon_table']['weapon_01']['weapon'] == hardpoint_dict['weapon_table']['weapon_02']['weapon']:
+                            print(
+                                f"WARNING - {self.ebps_filename} Duplicate weapons for hardpoint {pprint(hardpoint_dict['weapon_table'])}")
+                        else:
+                            print(
+                                f"WARNING - {self.ebps_filename} More than one weapon found for a hardpoint weapon table {pprint(hardpoint_dict['weapon_table'])}")
+                except KeyError:
+                    continue
+        except KeyError:
+            pass
+        return result
 
     def get_cover(self):
         cover_ext_dict = self.raw_json['cover_ext']
