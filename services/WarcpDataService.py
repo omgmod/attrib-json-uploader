@@ -215,6 +215,10 @@ class WarcpDataService:
 
         # Get units by faction
         units_by_faction = WarcpDataService._get_constnames_by_faction(connection, faction_constnames, 'units')
+        # Get unit replace constnames as well
+        units_replace_by_faction = WarcpDataService._get_constnames_by_faction(connection, faction_constnames, 'upgrades', unit_replace=True)
+        for faction, values in units_replace_by_faction.items():
+            units_by_faction[faction].update(values)
 
         # Get docmarkers by faction
         docmarkers_by_faction = WarcpDataService._get_constnames_by_faction(connection, faction_constnames, 'doctrineabilities', constname_prefix='OMGDOCUPG.', tier=True)
@@ -237,12 +241,13 @@ class WarcpDataService:
                                    faction_constnames: Set[AnyStr],
                                    tablename: AnyStr,
                                    constname_prefix: AnyStr = '',
-                                   tier=False
+                                   tier=False,
+                                   unit_replace=False,
                                    ) -> Dict[AnyStr, Set[AnyStr]]:
         by_faction = {}
         for faction in faction_constnames:
             result = connection.execute(
-                text(f"select CONSTNAME from {tablename} where CONSTNAME like '{constname_prefix}{faction}%' {'and tier > 0' if tier else ''}"))
+                text(f"select CONSTNAME from {tablename} where CONSTNAME like '{constname_prefix}{faction}%' {'and tier > 0' if tier else ''} {'and unit_replace = 1' if unit_replace else ''}"))
             by_faction[faction] = {x['CONSTNAME'] for x in result}
         return by_faction
 

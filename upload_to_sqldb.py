@@ -55,7 +55,6 @@ slot_items_json = json.loads(json.dumps(slot_items_json).replace('\\', '/').repl
 docmarkers_json = json.loads(json.dumps(docmarkers_json).replace('\\', '/').replace('//', '/'))
 
 # pass to data service to insert
-# for idx, unit in enumerate(units_json):
 warcp_data_service.insert_units(units_json, version_id)
 warcp_data_service.insert_entities(entities_json, version_id)
 warcp_data_service.insert_weapons(weapons_json, version_id)

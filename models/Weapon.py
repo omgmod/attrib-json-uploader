@@ -72,7 +72,7 @@ class Weapon(AbstractModel):
                         accuracy_multiplier
                         damage_multiplier
                         suppression_multiplier
-                        penetration_mulitplier
+                        penetration_multiplier
                 critical_table
                     tp_X references [type_target_critical]
                         critical_table_01
@@ -233,8 +233,8 @@ class Weapon(AbstractModel):
         if tracking:
             result['tracking'] = tracking
 
-        # if 'name' in self.raw_json:
-        #     result['name'] = StringUtils.remove_bracket_wrapping(self.raw_json['name'])
+        if 'name' in self.raw_json:
+            result['name'] = StringUtils.remove_bracket_wrapping(self.raw_json['name'].replace('\"', 'inch'))
 
         result.update(damage_over_time)
         result.update(projectile)
@@ -363,7 +363,7 @@ class Weapon(AbstractModel):
             add_to_dict_partial('accuracy_multiplier')
             add_to_dict_partial('damage_multiplier')
             add_to_dict_partial('suppression_multiplier')
-            add_to_dict_partial('penetration_mulitplier')
+            add_to_dict_partial('penetration_multiplier')
             if len(cover_type_result) > 0:
                 result[key] = cover_type_result
         return result
@@ -597,7 +597,7 @@ class Weapon(AbstractModel):
             add_to_dict_partial('moving_accuracy_multiplier')
             add_to_dict_partial('damage_multiplier')
             add_to_dict_partial('suppression_multiplier')
-            add_to_dict_partial('penetration_mulitplier')
+            add_to_dict_partial('penetration_multiplier')
             add_to_dict_partial('rear_penetration_multiplier')
             add_to_dict_partial('priority')
             add_to_dict_partial('disable_target')
