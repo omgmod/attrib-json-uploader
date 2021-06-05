@@ -373,8 +373,6 @@ class Weapon(AbstractModel):
         result = {}
         # For each critical target type
         for critical_type, value in critical_table_dict.items():
-            if 'tp_' not in critical_type:
-                continue
             # "tp_armour": {
             #   "critical_table_01": {
             #     "hit_01": {"critical_type": {"critical": "[[critical\\_no_critical.lua]]"}, "weight": "85"}, 
@@ -404,6 +402,8 @@ class Weapon(AbstractModel):
             # Each critical type has 3 critical tables, corresponding to green, yellow, red damage
             critical_type_result = {}
             for critical_table_num, critical_table_value in value.items():
+                if type(critical_table_value) != dict:
+                    continue
                 # Looking for hit_0X with critical_type and weight
                 critical_table_result = {}  # weight to critical/critical_combo ref
                 DictUtils.add_to_dict_if_in_source(critical_table_value, critical_table_result, 'damage_bound')
