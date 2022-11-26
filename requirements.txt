@@ -15,7 +15,7 @@ idna==2.8
 ipaddr==2.2.0
 lockfile==0.12.2
 msgpack==0.6.2
-mysqlclient==2.0.3
+mysqlclient==2.1.1
 packaging==20.3
 paramiko==2.7.2
 pep517==0.8.2

@@ -109,6 +109,8 @@ entities_clean = []
 upgrades_clean = []
 docmarkers_map = {}
 for faction in factions.values():
+    if faction.constname not in filtered_docmarker_upgrades_to_path_by_faction:
+        continue
     units_clean.extend([x.clean() for x in faction.units.values()])
     entities_clean.extend([x.clean() for x in faction.entities.values()])
     upgrades_clean.extend([x.clean() for x in faction.upgrades.values()])

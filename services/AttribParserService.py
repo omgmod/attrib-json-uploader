@@ -40,6 +40,8 @@ class AttribParserService:
         for faction in self.faction_constnames:
             faction_result = {}
             constname_set = constnames_by_faction[faction]
+            if faction not in const_data:
+                continue
             raw_const_set = const_data[faction]
             for constname in constname_set:
                 if flatten_docmarkers:
@@ -64,6 +66,8 @@ class AttribParserService:
         result = {}
         for faction in self.faction_constnames:
             faction_result = {}
+            if faction not in constnames_by_faction:
+                continue
             faction_constname_set = constnames_by_faction[faction]
             for doctrine_constname, doctrine_values in faction_constname_set.items():
                 for tr_constname, tr_values in doctrine_values.items():
@@ -86,6 +90,8 @@ class AttribParserService:
         """
         sbps_json_file = FileUtils.read_json_file(filepath)
         for faction_constname in self.faction_constnames:
+            if faction_constname not in units_to_path_by_faction:
+                continue
             faction_units_to_path = units_to_path_by_faction[faction_constname]
 
             faction = factions[faction_constname]
@@ -116,6 +122,8 @@ class AttribParserService:
         ebps_json_file = FileUtils.read_json_file(filepath)
         factions_dict = ebps_json_file['races']
         for faction_constname in self.faction_constnames:
+            if faction_constname not in AttribParserService.EBPS_FACTION_CONSTNAME_TO_DIRECTORY:
+                continue
             faction_name = AttribParserService.EBPS_FACTION_CONSTNAME_TO_DIRECTORY[faction_constname]
             faction_dict = factions_dict[faction_name]
             results = []
@@ -160,6 +168,8 @@ class AttribParserService:
                                    ) -> List:
         upgrade_json_file = FileUtils.read_json_file(filepath)
         for faction_constname in self.faction_constnames:
+            if faction_constname not in upgrades_to_path_by_faction:
+                continue
             faction_upgrades_to_path = upgrades_to_path_by_faction[faction_constname]
 
             faction = factions[faction_constname]
